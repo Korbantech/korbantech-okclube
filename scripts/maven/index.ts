@@ -78,7 +78,7 @@ import File from '../../src/models/File'
         console.log( 'error in save file in database' )
       }
     } catch ( e ) {
-      console.log( 'error in download file' + e.message )
+      console.log( 'error in download file ' + e )
     }
   }
 } )()
