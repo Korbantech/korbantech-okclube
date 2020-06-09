@@ -79,7 +79,6 @@ import File from '../../src/models/File'
       }
     } catch ( e ) {
       console.log( 'error in download file' + e.message )
-      break
     }
   }
 } )()
