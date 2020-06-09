@@ -1,0 +1,52 @@
+[
+  {
+    "id": 1062583,
+    "nome_parceiro": "Pickup Store",
+    "logo_parceiro": "https:\/\/static.ndonline.com.br\/2020\/03\/logo-externo-5.jpg",
+    "descricao_parceiro": "",
+    "endereco_parceiro": [
+      "Rua Gal Eurico Gaspar Dutra, 345 - Estreito - Florian\u00f3polis"
+    ],
+    "telefone_parceiro": [
+      "(48) 3244-3837",
+      "(48) 3025-3837"
+    ],
+    "categoria_beneficio": "Automotivo",
+    "titulo_beneficio": "At\u00e9 20% de desconto na Pickup Store",
+    "desconto_beneficio": 20,
+    "descricao_beneficio": "Tudo em troca de \u00f3leo, revis\u00f5es preventivas, el\u00e9trica e freio.\r\nServi\u00e7os em puckup e ve\u00edculos premium e multimarcas.\r\nS\u00f3cios do Clube ND tem 20% de desconto em troca de \u00f3leo e filtro; 15% de desconto na m\u00e3o de obra e 20% de desconto em pe\u00e7as."
+  },
+  {
+    "id": 1061726,
+    "nome_parceiro": "Xande Motos",
+    "logo_parceiro": "https:\/\/static.ndonline.com.br\/2020\/03\/logo-externo-4.jpg",
+    "descricao_parceiro": "",
+    "endereco_parceiro": [
+      "Rua Dr. Tancredo Neves, 296 - Jardim Janaina - Bigua\u00e7u"
+    ],
+    "telefone_parceiro": [
+      "(48) 99137-1575",
+      "(48) 99111-0857"
+    ],
+    "categoria_beneficio": "Automotivo",
+    "titulo_beneficio": "10% de desconto no Xande Motos",
+    "desconto_beneficio": 10,
+    "descricao_beneficio": "Tudo para sua moto!\r\nConserto de motos e mec\u00e2nica em geral.\r\nMultimarcas, acess\u00f3rios, pneus, rodas, pe\u00e7as e troca de \u00f3leo.\r\nAproveita que agora s\u00f3cios do Clube ND tem 10% de desconto na m\u00e3o de obra, ou pe\u00e7as e acess\u00f3rios em at\u00e9 3x sem juros."
+  },
+  {
+    "id": 1061684,
+    "nome_parceiro": "Carglass",
+    "logo_parceiro": "https:\/\/static.ndonline.com.br\/2020\/03\/logo-externo-3.jpg",
+    "descricao_parceiro": "",
+    "endereco_parceiro": [
+      "Rua Santos Saraiva, 1350 - Capoeiras - Florian\u00f3polis"
+    ],
+    "telefone_parceiro": [
+      "(47) 4003-3902"
+    ],
+    "categoria_beneficio": "Automotivo",
+    "titulo_beneficio": "At\u00e9 30% de desconto na Carglass",
+    "desconto_beneficio": 30,
+    "descricao_beneficio": "L\u00edder mundial em troca de vidros e reparos automotivos, gra\u00e7as a cerca de 30 mil profissionais capacitados ao redor do mundo, que ajudam a empresa a ser reconhecida nos 36 pa\u00edses e 5 continentes em que atuamos. Todos os nossos servi\u00e7os seguem padr\u00f5es internacionais, com total infraestrutura, e atendimento personalizado.\r\nS\u00f3cios do Clube ND tem:\r\n30% de desconto nos servi\u00e7os de reparo r\u00e1pido;\r\n20% de desconto nos servi\u00e7os de reparo de para-brisa;\r\n10% de desconto nos servi\u00e7os de aplica\u00e7\u00e3o de impermeabiliza\u00e7\u00e3o;\r\n5% de desconto nos servi\u00e7os de troca de para-brisa.\r\nAproveite agora mesmo."
+  }
+]

@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json.schemastore.org/nodemon",
+  "ignore": [
+    "**/*.spec.ts",
+    ".git",
+    "node_modules",
+    "src/components",
+    "src/app",
+    "src/pages",
+    "src/layouts",
+    "src/reducers",
+    "src/helpers",
+    "src/tools"
+  ],
+  "watch": [
+    "src",
+    "views"
+  ],
+  "exec": "yarn start:node",
+  "ext": "ts,tsx,pug"
+}

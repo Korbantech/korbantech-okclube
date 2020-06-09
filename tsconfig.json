@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "lib": [ "ESNext", "DOM" ],
+    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "Node",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "jsx": "react",
+    "plugins": [ {
+      "transform": "typescript-plugin-styled-components",
+      "type": "config",
+
+      "ssr": true,
+      "displayName": false
+    } ]
+  }
+}

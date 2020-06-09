@@ -1,0 +1,12 @@
+html&attributes( helmet.htmlAttributes.toComponent() )
+  head
+    | !{ helmet.title.toString() }
+    | !{ helmet.meta.toString() }
+    | !{ helmet.link.toString() }
+    | !{ styles }
+  body&attributes( helmet.bodyAttributes.toComponent() )
+    #app-root
+      | !{ react }
+    script.remove-on-load.
+      window.__PRELOADED_STATE__ = !{JSON.stringify( state ).replace( /</g, '\\u003c' )}
+    script( src="/public/main.js" )

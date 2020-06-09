@@ -1,0 +1,9 @@
+{
+  "extends": "@cookiex-react",
+  "rules": {
+    "consistent-return": "off",
+    "no-await-in-loop": "off",
+    "dot-notation": "off",
+    "max-len": [ "warn", 120 ]
+  }
+}
