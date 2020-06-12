@@ -5,10 +5,15 @@ import fs from 'fs'
 
 import connection from '../../helpers/connection'
 import Associated from '../../typings/associated'
+import news from './news'
+import videos from './videos'
 
 const ndErrorStream = fs.createWriteStream( 'nd-error.log' )
 
 const api = Express.Router()
+
+api.use( news )
+api.use( videos )
 
 api.route( '/user' )
   .post( async ( req, res ) => {
@@ -297,7 +302,9 @@ api.route( '/newspapers/editions' )
       req.query?.excluded?.toString() as 'on' | 'only' | 'true' || null
     const newspapers = req.query?.newspapers?.toString()
       .split( /,| / )
-      .map( item => parseInt( item ) ) || []
+      .map( item => parseInt( item, 10 ) ) || []
+
+    if ( newspapers.some( number => isNaN( number ) ) ) return res.status( 422 ).json()
 
     const query = connection( 'newspaper_editions' )
       .select( '*' )
