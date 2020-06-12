@@ -8,12 +8,16 @@ const videos = Express.Router()
 videos.get( '/videos', async ( req, res ) => {
   const limit = parseInt( req.query?.per?.toString() || req.query?.limit?.toString() || '30' )
   const page = parseInt( req.query?.page?.toString() || '0' ) + 1
+  const locations: string[] = req.query?.locations?.toString()
+    .split( ',' ) || []
 
   let promise: Promise<AxiosResponse<any[]>>
 
   const options = { params: { page, ['per-page']: limit } }
 
-  if ( false ) return res.status( 422 ).json()
+  if ( locations.length )
+    if ( locations.length > 1 ) return res.status( 422 ).json()
+    else return promise = wpApi.get( `/ndmais/v1/content/format/video/location/${locations[0]}`, options )
 
   else promise = wpApi.get( '/ndmais/v1/content/format/video/', options )
 
