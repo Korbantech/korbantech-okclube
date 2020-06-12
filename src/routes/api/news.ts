@@ -54,7 +54,7 @@ news.get( '/news/:id', async ( req, res ) => {
     const response = await wpApi.get<any>( `/ndmais/v1/content/${req.query.id}` )
     res.json( response.data )
   } catch ( e ) {
-    res.status( 500 ).json( e )
+    res.json( e )
   }
 } )
 
