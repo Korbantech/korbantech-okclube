@@ -48,4 +48,14 @@ news.get( '/news', async ( req, res ) => {
   }
 } )
 
+news.get( '/news/:id', async ( req, res ) => {
+  if ( !req.query.id ) return res.status( 422 ).json()
+  try {
+    const response = await wpApi.get<any>( `/ndmais/v1/content/${req.query.id}` )
+    res.json( response.data )
+  } catch ( e ) {
+    res.status( 500 ).json( e )
+  }
+} )
+
 export default news
