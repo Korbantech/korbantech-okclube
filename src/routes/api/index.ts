@@ -1,11 +1,11 @@
-import Times from '@cookiex/times'
 import axios, { AxiosError } from 'axios'
 import Express from 'express'
 import fs from 'fs'
 
 import connection from '../../helpers/connection'
-import Associated from '../../typings/associated'
 import news from './news'
+import newspapers from './newspapers'
+import users from './users'
 import videos from './videos'
 
 const ndErrorStream = fs.createWriteStream( 'nd-error.log' )
@@ -14,117 +14,8 @@ const api = Express.Router()
 
 api.use( news )
 api.use( videos )
-
-api.route( '/user' )
-  .post( async ( req, res ) => {
-    const user = {
-      mail: req.body.mail,
-      name: req.body.name,
-      pass: req.body.pass
-    }
-
-    const useId = ( await connection( 'users' )
-      .insert( user ) ).pop()
-
-    const ndInfo = {
-      tel: req.body.tel,
-      zipCode: req.body.zipCode || req.body.zip_code,
-      document: req.body.document,
-      address: req.body.address,
-      contract: req.body.contract,
-      valid: req.body.valid,
-      user: useId
-    }
-
-    await connection( 'users_nd_info' )
-      .insert( ndInfo )
-
-    res.json( {} )
-  } )
-
-  .put( async ( req, res ) => {
-
-    const id = req.body.id || req.body.user || req.body.userId
-
-    const user = {
-      mail: req.body.mail,
-      name: req.body.name,
-      pass: req.body.pass
-    }
-
-    await connection( 'users' )
-      .update( user )
-      .where( 'id', '=', id )
-
-    const ndInfo = {
-      tel: req.body.tel,
-      zip_code: req.body.zipCode || req.body.zip_code,
-      document: req.body.document,
-      address: req.body.address,
-      contract: req.body.contract,
-      valid: req.body.valid
-    }
-
-    const metaInfo = {
-      facebook_uri: req.body.facebook,
-      twitter_uri: req.body.twitter,
-      instagram_uri: req.body.instagram,
-      birthday: new Date( req.body.birthday )  
-    }
-
-    let photo: string | null = req.body.photo?.replace( /^data:image\/[a-z]{3,4};base64,/, '' ) || null
-
-    await connection( 'users_nd_info' )
-      .update( ndInfo )
-      .where( 'user', '=', id )
-
-    await connection( 'users_meta_info' )
-      .update( metaInfo )
-      .where( 'user', '=', id )
-
-    await connection( 'users_photos' )
-      .delete()
-      .where( 'user', '=', id )
-
-    if ( photo ) {
-
-      if ( /^https?:\/\//.test( photo ) ) {
-        await connection( 'users_photos' )
-          .insert( {
-            user: id,
-            photo
-          } )
-      }
-
-      else {
-        if ( !fs.existsSync( 'public/users/images' ) )
-          fs.mkdirSync( 'public/users/images', { recursive: true } )
-
-        try {
-
-          fs.writeFileSync( `public/users/images/${id}-photo.jpg`, photo, 'base64' )
-
-          photo = `http://dashboard.nd.homolog.korbantech.com.br:9000/public/users/images/${id}-photo.jpg?at=${new Date().getTime()}`
-
-          await connection( 'users_photos' )
-            .insert( {
-              user: id,
-              photo
-            } )
-
-        } catch { photo = null }
-      }
-    }
-
-    const meta = {
-      facebook: metaInfo.facebook_uri,
-      twitter: metaInfo.twitter_uri,
-      instagram: metaInfo.instagram_uri,
-      birthday: metaInfo.birthday
-    }
-
-    res.json( { ...user, ...ndInfo, ...meta, photo, id } )
-  } )
+api.use( newspapers )
+api.use( users )
 
 api.get( '/register/:cpf', async ( req, res ) => {
   const document = req.params?.cpf?.toString().replace( /\.|-/, '' ) || ''
@@ -218,13 +109,12 @@ api.get( '/login', async ( req, res ) => {
     '?' + params
     const response = await axios.get( url )
 
+    const search = '<ns:getLoginAssinanturasAtivasWebResponse xmlns:ns="http://webservice.control.gestor"><ns:return>'
     const data = response.data
-      .replace( '<ns:getLoginAssinanturasAtivasWebResponse xmlns:ns="http://webservice.control.gestor"><ns:return>', '' )
+      .replace( search, '' )
       .replace( '</ns:return></ns:getLoginAssinanturasAtivasWebResponse>', '' )
 
     const ndUser = JSON.parse( data ).pop()
-
-    console.log( JSON.stringify( ndUser, null, 2 ) )
 
     if ( ndUser.loginDoUsuarioAssinante === 'Usuário/Senha inválido.' )
       return res.status( 401 ).json( {} )
@@ -236,6 +126,9 @@ api.get( '/login', async ( req, res ) => {
         name: ndUser.nomeRazaoSocial,
       } ) ).pop()
 
+    const address = `${ndUser.nomeDoLogradouro}, ${ndUser.numeroDoEndereco} ` +
+    `- ${ndUser.nomeDoBairro} - ${ndUser.nomeDoMunicipio}/${ndUser.siglaDaUf}`
+
     await connection( 'users_nd_info' )
       .insert( {
         user: userId,
@@ -243,7 +136,7 @@ api.get( '/login', async ( req, res ) => {
         tel: ndUser.telefone,
         zip_code: ndUser.cep,
         document: ndUser.identMF,
-        address: `${ndUser.nomeDoLogradouro}, ${ndUser.numeroDoEndereco} - ${ndUser.nomeDoBairro} - ${ndUser.nomeDoMunicipio}/${ndUser.siglaDaUf}`,
+        address,
         contract: ndUser.numeroDoContrato,
         valid: new Date(
           ndUser.dataDevalidadeFinal.replace( '^([0-9]{4})-([0-9]{2})-([0-9]{2}).*', '$1-$2-$3' )
@@ -259,117 +152,6 @@ api.get( '/login', async ( req, res ) => {
 
   res.json( user )
 } )
-
-api.route( '/newspapers' )
-  .get( async ( req, res ) => {
-    const limit = parseInt( req.query?.per?.toString() || '30' )
-    const page = parseInt( req.query?.page?.toString() || '0' )
-    const order = req.query?.order?.toString() || 'id'
-    const orderType: 'desc' | 'asc' = req.query?.desc ? 'desc' : 'asc'
-    const like: null | string = req.query?.like?.toString() || null
-    const excluded: 'on' | 'only' | 'true' | null =
-      req.query?.excluded?.toString() as 'on' | 'only' | 'true' || null
-    const from: Times.Date | null = req.query?.from && new Times.Date( req.query?.from.toString() ) || null
-    const to: Times.Date | null = req.query?.to && new Times.Date( req.query?.to.toString() ) || null
-
-    const query = connection( 'newspaper_editions' )
-      .select( '*' )
-      .limit( limit )
-      .offset( page * limit )
-      .orderBy( order, orderType )
-
-    if ( excluded === 'only' ) query.whereNotNull( 'deleted_at' )
-
-    if ( like ) query.where( 'name', 'like', `%${like}%` )
-
-    if ( from )
-      if ( to ) query.whereBetween( 'screening_date', [ from, to ] )
-      else query.where( 'screening_date', '>', from )
-
-    else if ( to ) query.where( 'screening_date', '<', from )
-
-    res.json( await query )
-  } )
-
-api.route( '/newspapers/editions' )
-  .get( async ( req, res ) => {
-    const limit = parseInt( req.query?.per?.toString() || '30' )
-    const page = parseInt( req.query?.page?.toString() || '0' )
-    const order = req.query?.order?.toString() || 'id'
-    const orderType: 'desc' | 'asc' = req.query?.desc ? 'desc' : 'asc'
-    const like: null | string = req.query?.like?.toString() || null
-    const excluded: 'on' | 'only' | 'true' | null =
-      req.query?.excluded?.toString() as 'on' | 'only' | 'true' || null
-    const newspapers = req.query?.newspapers?.toString()
-      .split( /,| / )
-      .map( item => parseInt( item, 10 ) ) || []
-
-    if ( newspapers.some( number => isNaN( number ) ) ) return res.status( 422 ).json()
-
-    const query = connection( 'newspaper_editions' )
-      .select( '*' )
-      .limit( limit )
-      .offset( page * limit )
-      .orderBy( order, orderType )
-
-    if ( excluded === 'only' ) query.whereNotNull( 'deleted_at' )
-
-    if ( like ) query.where( 'name', 'like', `%${like}%` )
-
-    if ( newspapers.length ) query.whereIn( 'newspaper', newspapers )
-
-    res.json( await query )
-  } )
-
-api.route( '/newspaper/:id/edition' )
-  .post( async ( req, res ) => { res.json( {} ) } )
-
-api.route( '/newspaper/:id/editions' )
-  .get( async ( req, res ) => {
-    const limit = parseInt( req.query?.per?.toString() || '30' )
-    const page = parseInt( req.query?.page?.toString() || '0' )
-    const order = req.query?.order?.toString() || 'id'
-    const orderType: 'desc' | 'asc' = req.query?.desc ? 'desc' : 'asc'
-    const like: null | string = req.query?.like?.toString() || null
-    const excluded: 'on' | 'only' | 'true' | null =
-      req.query?.excluded?.toString() as 'on' | 'only' | 'true' || null
-
-    const query = connection( 'newspaper_editions' )
-      .select( '*' )
-      .limit( limit )
-      .offset( page * limit )
-      .orderBy( order, orderType )
-
-    if ( excluded === 'only' ) query.whereNotNull( 'deleted_at' )
-
-    if ( like ) query.where( 'name', 'like', `%${like}%` )
-
-    query.where( 'newspaper', '=', req.params.id )
-
-    res.json( await query )
-  } )
-
-api.route( '/newspapers/edition/:id' )
-  .get( async ( req, res ) => {
-    const edition = await connection( 'newspaper_editions' )
-      .select( '*' )
-      .where( 'newspaper_editions.id', req.params.id )
-      .first()
-
-    if ( !edition ) return res.status( 404 ).json( {} )
-
-    res.json( edition )
-  } )
-
-api.route( '/associated' )
-  .post( async ( req, res ) => {
-    const associated: Partial<Associated> = req.body
-
-    if ( !associated.name || !associated.benefit )
-      return res.status( 400 ).json( {} )
-
-    res.json( {} )
-  } )
 
 api.route( '/associated/:id' )
   .get( async ( req, res ) => {

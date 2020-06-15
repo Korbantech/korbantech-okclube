@@ -8,16 +8,30 @@ const news = Express.Router()
 news.get( '/news', async ( req, res ) => {
   const limit = parseInt( req.query?.per?.toString() || req.query?.limit?.toString() || '30' )
   const page = parseInt( req.query?.page?.toString() || '0' ) + 1
+
   const categories: string[] = req.query?.categories?.toString()
     .split( ',' ) || []
+
   const locations: string[] = req.query?.locations?.toString()
+    .split( ',' ) || []
+
+  const formats: string[] = req.query?.formats?.toString()
+    .split( ',' ) || []
+
+  const programs: string[] = req.query?.programs?.toString()
     .split( ',' ) || []
 
   let promise: Promise<AxiosResponse<any[]>>
 
   const options = { params: { page, ['per-page']: limit } }
 
-  if ( categories.length )
+  if ( programs.length )
+
+    if ( programs.length > 1 ) return res.status( 422 ).json()
+
+    else promise = wpApi.get( `/ndmais/v1/content/program/${programs[0]}`, options )
+
+  else if ( categories.length )
 
     if ( categories.length > 1 ) return res.status( 422 ).json()
 
@@ -36,7 +50,19 @@ news.get( '/news', async ( req, res ) => {
 
     if ( locations.length > 1 ) return res.status( 422 ).json()
 
+    else if ( formats.length )
+
+      if ( formats.length > 1 ) return res.status( 422 ).json()
+
+      else wpApi.get( `/ndmais/v1/content/format/${formats[0]}/location/${locations[0]}`, options )
+
     else promise = wpApi.get<any[]>( `/ndmais/v1/content/location/${locations[0]}`, options )
+  
+  else if ( formats.length )
+
+    if ( formats.length > 1 ) return res.status( 422 ).json()
+    
+    else wpApi.get( '/ndmais/v1/content/format/video/', options )
 
   else promise = wpApi.get<any[]>( '/ndmais/v1/content/', options )
   
