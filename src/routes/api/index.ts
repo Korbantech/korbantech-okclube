@@ -5,6 +5,7 @@ import fs from 'fs'
 import connection from '../../helpers/connection'
 import news from './news'
 import newspapers from './newspapers'
+import programs from './programs'
 import users from './users'
 import videos from './videos'
 
@@ -16,6 +17,7 @@ api.use( news )
 api.use( videos )
 api.use( newspapers )
 api.use( users )
+api.use( programs )
 
 api.get( '/register/:cpf', async ( req, res ) => {
   const document = req.params?.cpf?.toString().replace( /\.|-/, '' ) || ''
