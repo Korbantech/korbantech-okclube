@@ -20,7 +20,7 @@ programs.get( '/programs', async ( req, res ) => {
 
     else promise = wpApi.get( `/ndmais/v1/content/filters/program/location/${locations[0]}` )
 
-  else promise = wpApi.get( '/ndmais/v1/content/filters/program'  )
+  else promise = wpApi.get( '/ndmais/v1/content/filters/program' )
 
   const response = await promise
 
