@@ -16,7 +16,7 @@
     "db:schemes:users-nd-info": "ts-node ./scripts/table-users-nd-info.ts",
     "db:schemes": "yarn run db:schemes:create && yarn run db:schemes:newspaper && yarn run db:schemes:favorites && yarn run db:schemes:users-nd-info",
     "db:run": "yarn run db:schemes && yarn run db:populate",
-    "start:node": "node --inspect=5858 -r ts-node/register ./src/index.tsx",
+    "start:node": "node -r ts-node/register ./src/index.tsx",
     "start:ts-node": "ts-node --compiler ttypescript ./src/index.tsx",
     "start:babel": "babel-node -r ./register.c ./src/index.tsx",
     "start:watch": "nodemon --config nodemon.json",
