@@ -24,8 +24,8 @@ polls.get( '/polls/:id/comments', async ( req, res ) => {
     .offset( page * limit )
     .orderBy( order )
 
-  if ( !excluded ) query.whereNotNull( 'deleted_at' )
-  else if ( excluded === 'only' ) query.whereNull( 'deleted_at' )
+  if ( !excluded ) query.whereNull( 'deleted_at' )
+  else if ( excluded === 'only' ) query.whereNotNull( 'deleted_at' )
 
   if ( user ) query.where( 'user', user )
 
@@ -97,8 +97,8 @@ polls.get( '/polls', async ( req, res ) => {
     .offset( page * limit )
     .orderBy( order, 'desc' )
 
-  if ( !excluded ) query.whereNotNull( 'deleted_at' )
-  else if ( excluded === 'only' ) query.whereNull( 'deleted_at' )
+  if ( !excluded ) query.whereNull( 'deleted_at' )
+  else if ( excluded === 'only' ) query.whereNotNull( 'deleted_at' )
 
   if ( program ) query.where( 'program', parseInt( program, 10 ) )
 
@@ -108,7 +108,7 @@ polls.get( '/polls', async ( req, res ) => {
       clause.andOn( 'polls_responess.user', user )
     } )
     .column( connection.raw( 'polls_responess.response AS response' ) )
-
+  console.log( query.toString() )
   return res.json( await query )
 
 } )

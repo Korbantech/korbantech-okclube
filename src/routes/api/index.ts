@@ -5,6 +5,7 @@ import fs from 'fs'
 import connection from '../../helpers/connection'
 import news from './news'
 import newspapers from './newspapers'
+import polls from './polls'
 import programs from './programs'
 import users from './users'
 import videos from './videos'
@@ -20,6 +21,7 @@ api.use( videos )
 api.use( newspapers )
 api.use( users )
 api.use( programs )
+api.use( polls )
 
 api.get( '/check/:id', async ( req, res ) => {
 

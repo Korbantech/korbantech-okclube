@@ -2,14 +2,14 @@ import connection from '../src/helpers/connection'
 
 connection
   .schema
-  .dropTableIfExists( 'polls' )
   .dropTableIfExists( 'polls_responses' )
   .dropTableIfExists( 'polls_comments' )
+  .dropTableIfExists( 'polls' )
   .createTableIfNotExists( 'polls', table => {
     table.bigIncrements()
     table.text( 'text' ).notNullable()
     table.bigInteger( 'program' ).unsigned().notNullable()
-    table.timestamps()
+    table.timestamps( true, true )
     table.timestamp( 'deleted_at' )
   } )
   .createTableIfNotExists( 'polls_responses', table => {
@@ -21,7 +21,7 @@ connection
     table.bigInteger( 'poll' ).unsigned().notNullable().references( 'polls.id' )
     table.bigInteger( 'user' ).unsigned().references( 'users.id' )
     table.text( 'comment' )
-    table.timestamps()
+    table.timestamps( true, true )
     table.timestamp( 'deleted_at' )
   } )
   .then( async () => {
@@ -35,6 +35,7 @@ connection
     await connection( 'polls_comments' )
       .insert( {
         poll,
+        user: 1,
         comment: 'Achei que a jarra traz um ar de descontração para o programa, acho que deve permanecer'
       } )
 
@@ -44,6 +45,8 @@ connection
         user: 1,
         response: 'yes'
       } )
+    console.log( 'create and populate' )
+    connection.destroy()
   } )
   .catch( reason => {
     console.log( reason )
