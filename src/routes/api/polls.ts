@@ -72,11 +72,18 @@ polls.post( '/polls/:id', async ( req, res ) => {
   await connection( 'polls_responses' )
     .insert( {
       user,
-      poll: req.params.poll,
+      poll: req.params.id,
       response
     } )
 
-  return res.json()
+  const query = connection( 'polls_responses' )
+    .select()
+    .column( connection.raw( 'response AS key' ) )
+    .column( connection.raw( 'COUNT( response ) AS qty' ) )
+    .where( 'id', req.params.id )
+    .groupBy( 'response' )
+
+  return res.json( await query )
 } )
 
 polls.get( '/polls', async ( req, res ) => {
