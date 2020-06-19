@@ -105,9 +105,10 @@ polls.get( '/polls', async ( req, res ) => {
   if ( user ) query
     .leftJoin( 'polls_responses', clause => {
       clause.on( 'polls_responses.poll', 'polls.id' )
+      clause.andOn( 'polls_responses.user', parseInt( user, 10 ) as any )
     } )
     .column( connection.raw( 'polls_responses.response AS response' ) )
-    .where( 'polls_responses.user', user )
+
   console.log( query.toString() )
   return res.json( await query )
 
