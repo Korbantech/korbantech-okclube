@@ -34,8 +34,8 @@ polls.get( '/polls/:id/comments', async ( req, res ) => {
 
 polls.post( '/polls/:id/comments', async ( req, res ) => {
   if ( !req.params.id ) return res.status( 422 ).json()
-  const user = req.query?.user?.toString()
-  const comment = req.query?.comment?.toString() || req.query?.text?.toString()
+  const user = req.body?.user?.toString()
+  const comment = req.body?.comment?.toString() || req.query?.text?.toString()
   const poll = req.params.id
   if ( !user ) return res.status( 422 ).json( { message: 'no user' } )
   if ( !comment ) return res.status( 422 ).json( { message: 'no comment' } )
@@ -83,7 +83,6 @@ polls.post( '/polls/:id', async ( req, res ) => {
     .where( 'poll', req.params.id )
     .groupBy( 'response' )
 
-  console.log( query.toString() )
   return res.json( await query )
 } )
 
@@ -104,6 +103,7 @@ polls.get( '/polls', async ( req, res ) => {
     .limit( limit )
     .offset( page * limit )
     .orderBy( order, 'desc' )
+    .groupBy( 'polls.id' )
 
   if ( !excluded ) query.whereNull( 'deleted_at' )
   else if ( excluded === 'only' ) query.whereNotNull( 'deleted_at' )
