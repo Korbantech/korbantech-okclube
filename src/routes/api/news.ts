@@ -21,9 +21,11 @@ news.get( '/news', async ( req, res ) => {
   const programs: string[] = req.query?.programs?.toString()
     .split( ',' ) || []
 
+  const search: string | undefined = req.query?.search?.toString() || undefined
+
   let promise: Promise<AxiosResponse<any[]>>
 
-  const options = { params: { page, ['per-page']: limit } }
+  const options = { params: { page, ['per-page']: limit, search } }
 
   if ( programs.length )
 
@@ -54,7 +56,7 @@ news.get( '/news', async ( req, res ) => {
 
       if ( formats.length > 1 ) return res.status( 422 ).json()
 
-      else wpApi.get( `/ndmais/v1/content/format/${formats[0]}/location/${locations[0]}`, options )
+      else promise = wpApi.get( `/ndmais/v1/content/format/${formats[0]}/location/${locations[0]}`, options )
 
     else promise = wpApi.get<any[]>( `/ndmais/v1/content/location/${locations[0]}`, options )
   
@@ -62,7 +64,7 @@ news.get( '/news', async ( req, res ) => {
 
     if ( formats.length > 1 ) return res.status( 422 ).json()
     
-    else wpApi.get( '/ndmais/v1/content/format/video/', options )
+    else promise = wpApi.get( '/ndmais/v1/content/format/video/', options )
 
   else promise = wpApi.get<any[]>( '/ndmais/v1/content/', options )
   
