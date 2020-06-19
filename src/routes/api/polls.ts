@@ -52,9 +52,9 @@ polls.get( '/polls/:id', async ( req, res ) => {
 
   const query = connection( 'polls_responses' )
     .select()
-    .column( connection.raw( 'response AS key' ) )
-    .column( connection.raw( 'COUNT( response ) AS qty' ) )
-    .where( 'id', req.params.id )
+    .column( connection.raw( '`polls_responses`.`response` AS `key`' ) )
+    .column( connection.raw( 'COUNT( `polls_responses`.`response` ) AS `qty`' ) )
+    .where( 'poll', req.params.id )
     .groupBy( 'response' )
 
   if ( user ) query.where( 'user', user )
@@ -78,10 +78,11 @@ polls.post( '/polls/:id', async ( req, res ) => {
 
   const query = connection( 'polls_responses' )
     .select()
-    .column( connection.raw( 'polls_responses.response AS key' ) )
-    .column( connection.raw( 'COUNT( polls_responses.response ) AS qty' ) )
-    .where( 'id', req.params.id )
+    .column( connection.raw( '`polls_responses`.`response` AS `key`' ) )
+    .column( connection.raw( 'COUNT( `polls_responses`.`response` ) AS `qty`' ) )
+    .where( 'poll', req.params.id )
     .groupBy( 'response' )
+
   console.log( query.toString() )
   return res.json( await query )
 } )
