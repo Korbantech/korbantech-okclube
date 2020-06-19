@@ -9,7 +9,9 @@ import programs from './programs'
 import users from './users'
 import videos from './videos'
 
+const content = fs.readFileSync( 'nd-error.log' )
 const ndErrorStream = fs.createWriteStream( 'nd-error.log' )
+ndErrorStream.write( content )
 
 const api = Express.Router()
 
@@ -18,6 +20,65 @@ api.use( videos )
 api.use( newspapers )
 api.use( users )
 api.use( programs )
+
+api.get( '/check/:id', async ( req, res ) => {
+
+  const id = parseInt( req.params?.id?.toString() || '0', 10 )
+
+  if ( !id ) return res.status( 422 ).json()
+
+  const user = await connection( 'users' )
+    .select( '*' )
+    .join( 'users_nd_info', 'users_nd_info.user', 'users.id' )
+    .where( 'users.id', id )
+    .first()
+
+  if ( !user?.document ) return res.status( 422 ).json( { message: 'no document' } )
+
+  const document = user.document.replace( /(\.|-)/i, '' )
+
+  const url = 'https://sac.ndonline.com.br/clubedoassinante/rest/clube/dados/identmf/' + document
+  let data
+  const start = Date.now()
+
+  try {
+    data = ( await axios.get( url ) ).data
+  } catch ( e ) {
+    const err: AxiosError = e
+    data = err.response?.data
+  } finally {
+    ndErrorStream.write( `time sac[${ Date.now() - start }ms][check register][${document}][${url}]\n` )
+  }
+
+  if ( !Array.isArray( data ) ) return res.status( 500 ).json()
+
+  data = data.shift()
+
+  if ( data.codigoDaPessoaAssinante === 0 ) return res.status( 404 )
+
+  await connection( 'users_nd_info' ).delete().where( 'user', id )
+
+  await connection( 'users_nd_info' ).insert( {
+    user,
+    code: data.codigoDaPessoaAssinante,
+    document: data.identMF,
+    valid: data.dataDeValidade
+  } )
+
+  const info = await connection( 'users' )
+    .select( [ 'users.*', 'users_nd_info.*', 'users_meta_info.birthday', 'users_photos.photo' ] )
+    .where( 'users.id', id )
+    .join( 'users_nd_info', 'users_nd_info.user', 'users.id' )
+    .leftJoin( 'users_meta_info', 'users_meta_info.user', 'users.id' )
+    .leftJoin( 'users_photos', 'users_photos.user', 'users.id' )
+    .column( connection.raw( 'users_meta_info.facebook_uri AS facebook' ) )
+    .column( connection.raw( 'users_meta_info.twitter_uri AS twitter' ) )
+    .column( connection.raw( 'users_meta_info.instagram_uri AS instagram' ) )
+    .first()
+
+  return res.json( info )
+
+} )
 
 api.get( '/register/:cpf', async ( req, res ) => {
   const document = req.params?.cpf?.toString().replace( /\.|-/, '' ) || ''
@@ -37,9 +98,8 @@ api.get( '/register/:cpf', async ( req, res ) => {
     } catch ( e ) {
       const err: AxiosError = e
       data = err.response?.data
-      ndErrorStream.write( 'TimeOut Sac\n' )
     } finally {
-      console.log( `request end - ${ Date.now() - start }ms` )
+      ndErrorStream.write( `time sac[${ Date.now() - start }ms][${document}][${url}]\n` )
     }
 
     if ( !Array.isArray( data ) ) return res.status( 500 ).json()
@@ -80,7 +140,7 @@ api.get( '/register/:cpf', async ( req, res ) => {
       .column( connection.raw( 'users_meta_info.instagram_uri AS instagram' ) )
       .first()
 
-    return res.json( await info )
+    return res.json( info )
   }
 
   res.status( 200 ).json( { ...user, alreadyExists: true } )
