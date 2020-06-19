@@ -103,11 +103,11 @@ polls.get( '/polls', async ( req, res ) => {
   if ( program ) query.where( 'program', parseInt( program, 10 ) )
 
   if ( user ) query
-    .leftJoin( 'polls_responess', clause => {
-      clause.on( 'polls_responess.poll', 'polls.id' )
-      clause.andOn( 'polls_responess.user', user )
+    .leftJoin( 'polls_respones', clause => {
+      clause.on( 'polls_respones.poll', 'polls.id' )
+      clause.andOn( 'polls_respones.user', user )
     } )
-    .column( connection.raw( 'polls_responess.response AS response' ) )
+    .column( connection.raw( 'polls_respones.response AS response' ) )
   console.log( query.toString() )
   return res.json( await query )
 
