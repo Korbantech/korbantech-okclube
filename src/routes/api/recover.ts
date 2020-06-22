@@ -42,7 +42,9 @@ recover.post( '/recover/send', async ( req, res ) => {
     subject: 'Recuperação de senha',
     html: template( { code, user } ),
   } )
-    .then( () => { console.log( `[${new Date().toISOString()}]mail to: ${user.mail}` ) } )
+    .then( () => {
+      console.log( `[${new Date().toISOString()}]mail to: ${user.mail}` )
+    } )
 
   return res.json()
   
@@ -60,7 +62,7 @@ recover.get( '/recover/:code/check', async ( req, res ) => {
     .where( 'code', code )
     .first()
 
-  if ( !passRecover ) return res.json( 404 )
+  if ( !passRecover ) return res.status( 404 ).json()
 
   await connection( 'pass_recover' )
     .update( { checked_at: new Date() } )
