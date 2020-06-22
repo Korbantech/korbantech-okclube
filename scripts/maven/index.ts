@@ -23,7 +23,7 @@ import File from '../../src/models/File'
     try {
       const ed = edition.ed.replace( /,$/, '' )
       const output =  path.join( folder, `${ed}.pdf` )
-      const url = `http://dashboard.nd.homolog.korbantech.com.br:9000/public/magazines/${ed}.pdf`
+      const url = `http://dashboard.app.ndmais.com.br/public/magazines/${ed}.pdf`
       let pagesCount: number
       if ( await File.exists( output ) ) {
         progress.increment( 20 )

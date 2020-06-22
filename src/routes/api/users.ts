@@ -96,7 +96,7 @@ route.put( async ( req, res ) => {
 
         await File.write( `public/users/images/${id}-photo.jpg`, photo, 'base64' )
 
-        const base = 'http://dashboard.nd.homolog.korbantech.com.br:9000/public/users/images'
+        const base = 'http://dashboard.app.ndmais.com.br/public/users/images'
         photo = `${base}/${id}-photo.jpg?at=${new Date().getTime()}`
 
         await connection( 'users_photos' )
