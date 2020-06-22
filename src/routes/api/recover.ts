@@ -42,7 +42,7 @@ recover.post( '/recover/send', async ( req, res ) => {
     subject: 'Recuperação de senha',
     html: template( { code, user } ),
   } )
-    .then( () => {} )
+    .then( () => { console.log( `[${new Date().toISOString()}]mail to: ${user.mail}` ) } )
 
   return res.json()
   
