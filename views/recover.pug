@@ -1,0 +1,21 @@
+:stylus( wrap=true )
+  .mail-body
+    width 100%
+  .mail-welcome
+    font-size 16px
+    font-weight bold
+  .mail-text
+    font-size 14px
+    color #CCCCCC
+  .mail-code
+    color #000000
+  .mail-ignore
+    font-size 14px
+    color #CCCCCC
+
+div.mail-body
+  h1.mail-welcome Oi, #{ user.name }
+  p.mail-text Uma solicitação de recuperação de senha foi realizada para o seu endereço de email, para realizar a troca de senha digite o código logo abaixo e insira na tela de recuperação no aplicativo.
+  h4.mail-code= code
+  p.mail-ignore Caso não tenha solicitado, por favor ignore esse email.
+  

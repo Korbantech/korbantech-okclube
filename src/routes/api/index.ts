@@ -3,10 +3,12 @@ import Express from 'express'
 import fs from 'fs'
 
 import connection from '../../helpers/connection'
+import mail from './mail'
 import news from './news'
 import newspapers from './newspapers'
 import polls from './polls'
 import programs from './programs'
+import recover from './recover'
 import users from './users'
 import videos from './videos'
 
@@ -22,6 +24,8 @@ api.use( newspapers )
 api.use( users )
 api.use( programs )
 api.use( polls )
+api.use( mail )
+api.use( recover )
 
 api.get( '/check/:id', async ( req, res ) => {
 
@@ -34,8 +38,6 @@ api.get( '/check/:id', async ( req, res ) => {
     .join( 'users_nd_info', 'users_nd_info.user', 'users.id' )
     .where( 'users.id', id )
     .first()
-
-  console.log( user )
 
   if ( !user?.document ) return res.status( 422 ).json( { message: 'no document' } )
 
