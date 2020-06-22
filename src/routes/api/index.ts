@@ -35,6 +35,8 @@ api.get( '/check/:id', async ( req, res ) => {
     .where( 'users.id', id )
     .first()
 
+  console.log( user )
+
   if ( !user?.document ) return res.status( 422 ).json( { message: 'no document' } )
 
   const document = user.document.replace( /(\.|-)/i, '' )
