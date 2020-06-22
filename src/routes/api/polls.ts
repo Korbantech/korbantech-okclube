@@ -22,7 +22,7 @@ polls.get( '/polls/:id/comments', async ( req, res ) => {
     .innerJoin( 'users', 'users.id', 'polls_comments.user' )
     .limit( limit )
     .offset( page * limit )
-    .orderBy( order )
+    .orderBy( order, 'desc' )
 
   if ( !excluded ) query.whereNull( 'deleted_at' )
   else if ( excluded === 'only' ) query.whereNotNull( 'deleted_at' )
