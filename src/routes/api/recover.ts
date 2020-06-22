@@ -38,10 +38,11 @@ recover.post( '/recover/send', async ( req, res ) => {
 
   await transport.sendMail( {
     from: 'devkorbantech@gmail.com',
-    to: 'tony.js@zoho.eu',
+    to: user.mail,
     subject: 'Recuperação de senha',
     html: template( { code, user } ),
   } )
+    .then( () => {} )
 
   return res.json()
   
