@@ -23,4 +23,4 @@ app.use( vhost( /^dashboard\..*/, dashboard ) )
 
 app.use( vhost( /^api\..*/, api ) )
 
-app.listen( 9000, () => { console.log( 'server start' ) } )
+app.listen( 80, () => { console.log( 'server start' ) } )
