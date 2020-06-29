@@ -212,9 +212,14 @@ api.get( '/login', async ( req, res ) => {
       } )
 
     user = await connection( 'users' )
-      .select( '*' )
+      .select( [ 'users.*', 'users_nd_info.*', 'users_meta_info.birthday', 'users_photos.photo' ] )
       .where( 'users.id', userId )
       .join( 'users_nd_info', 'users_nd_info.user', 'users.id' )
+      .leftJoin( 'users_meta_info', 'users_meta_info.user', 'users.id' )
+      .leftJoin( 'users_photos', 'users_photos.user', 'users.id' )
+      .column( connection.raw( 'users_meta_info.facebook_uri AS facebook' ) )
+      .column( connection.raw( 'users_meta_info.twitter_uri AS twitter' ) )
+      .column( connection.raw( 'users_meta_info.instagram_uri AS instagram' ) )
       .first()
   }
 

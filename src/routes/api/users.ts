@@ -109,14 +109,18 @@ route.put( async ( req, res ) => {
     }
   }
 
-  const meta = {
-    facebook: metaInfo.facebook_uri,
-    twitter: metaInfo.twitter_uri,
-    instagram: metaInfo.instagram_uri,
-    birthday: metaInfo.birthday
-  }
+  const data = await connection( 'users' )
+    .select( [ 'users.*', 'users_nd_info.*', 'users_meta_info.birthday', 'users_photos.photo' ] )
+    .where( 'users.id', id )
+    .join( 'users_nd_info', 'users_nd_info.user', 'users.id' )
+    .leftJoin( 'users_meta_info', 'users_meta_info.user', 'users.id' )
+    .leftJoin( 'users_photos', 'users_photos.user', 'users.id' )
+    .column( connection.raw( 'users_meta_info.facebook_uri AS facebook' ) )
+    .column( connection.raw( 'users_meta_info.twitter_uri AS twitter' ) )
+    .column( connection.raw( 'users_meta_info.instagram_uri AS instagram' ) )
+    .first()
 
-  res.json( { ...user, ...ndInfo, ...meta, photo, id } )
+  res.json( data )
 } )
 
 export default users
