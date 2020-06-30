@@ -158,7 +158,6 @@ api.get( '/login', async ( req, res ) => {
 
   const mail = req.query?.mail?.toString() || ''
   const pass = req.query?.pass?.toString() || ''
-  const params = `loginDoUsuarioAssinante=${mail}&senhaDoUsuarioAssinante=${pass}`
 
   let user = await connection( 'users' )
     .select( [ 'users.*', 'users_nd_info.*', 'users_meta_info.birthday', 'users_photos.photo' ] )
@@ -172,58 +171,7 @@ api.get( '/login', async ( req, res ) => {
     .column( connection.raw( 'users_meta_info.instagram_uri AS instagram' ) )
     .first()
 
-  if ( !user ) {
-    const url = 'https://sac.ndonline.com.br' +
-    ':8023' +
-    '/axis2/services/Assinante/getLoginAssinanturasAtivasWeb' +
-    '?' + params
-    const response = await axios.get( url )
-
-    const search = '<ns:getLoginAssinanturasAtivasWebResponse xmlns:ns="http://webservice.control.gestor"><ns:return>'
-    const data = response.data
-      .replace( search, '' )
-      .replace( '</ns:return></ns:getLoginAssinanturasAtivasWebResponse>', '' )
-
-    const ndUser = JSON.parse( data ).pop()
-
-    if ( ndUser.loginDoUsuarioAssinante === 'Usuário/Senha inválido.' )
-      return res.status( 401 ).json( {} )
-
-    let userId = ( await connection( 'users' )
-      .insert( {
-        mail,
-        pass,
-        name: ndUser.nomeRazaoSocial,
-      } ) ).pop()
-
-    const address = `${ndUser.nomeDoLogradouro}, ${ndUser.numeroDoEndereco} ` +
-    `- ${ndUser.nomeDoBairro} - ${ndUser.nomeDoMunicipio}/${ndUser.siglaDaUf}`
-
-    await connection( 'users_nd_info' )
-      .insert( {
-        user: userId,
-        code: ndUser.codigoDoAssinante,
-        tel: ndUser.telefone,
-        zip_code: ndUser.cep,
-        document: ndUser.identMF,
-        address,
-        contract: ndUser.numeroDoContrato,
-        valid: new Date(
-          ndUser.dataDevalidadeFinal.replace( '^([0-9]{4})-([0-9]{2})-([0-9]{2}).*', '$1-$2-$3' )
-        )
-      } )
-
-    user = await connection( 'users' )
-      .select( [ 'users.*', 'users_nd_info.*', 'users_meta_info.birthday', 'users_photos.photo' ] )
-      .where( 'users.id', userId )
-      .join( 'users_nd_info', 'users_nd_info.user', 'users.id' )
-      .leftJoin( 'users_meta_info', 'users_meta_info.user', 'users.id' )
-      .leftJoin( 'users_photos', 'users_photos.user', 'users.id' )
-      .column( connection.raw( 'users_meta_info.facebook_uri AS facebook' ) )
-      .column( connection.raw( 'users_meta_info.twitter_uri AS twitter' ) )
-      .column( connection.raw( 'users_meta_info.instagram_uri AS instagram' ) )
-      .first()
-  }
+  if ( !user ) return res.status( 404 ).json()
 
   res.json( user )
 } )
