@@ -124,7 +124,7 @@ api.get( '/register/:cpf', async ( req, res ) => {
 
     const user = ( await connection( 'users' )
       .insert( {
-        name: data.nomeDoAssinante,
+        name: data.nomeDoBeneficario || data.nomeDoAssinante,
         mail: data.email
       } ) ).pop()
 

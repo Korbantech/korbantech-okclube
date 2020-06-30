@@ -123,4 +123,21 @@ route.put( async ( req, res ) => {
   res.json( data )
 } )
 
+route.delete( async ( req, res ) => {
+  const id = req.body.id || req.body.user || req.body.userId
+
+  if ( !id ) return res.status( 422 ).json()
+
+  await connection( 'users_nd_info' ).delete().where( 'user', id )
+  await connection( 'favorite_associates' ).delete().where( 'user', id )
+  await connection( 'favorite_programs' ).delete().where( 'user', id )
+  await connection( 'favorite_categories' ).delete().where( 'user', id )
+  await connection( 'polls_responses' ).delete().where( 'user', id )
+  await connection( 'users_meta_info' ).delete().where( 'user', id )
+  await connection( 'users_photos' ).delete().where( 'user', id )
+  await connection( 'users' ).delete().where( 'id', id )
+
+  res.json()
+} )
+
 export default users
