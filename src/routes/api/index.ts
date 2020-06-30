@@ -53,14 +53,16 @@ api.get( '/check/:id', async ( req, res ) => {
     const err: AxiosError = e
     data = err.response?.data
   } finally {
-    ndErrorStream.write( `time sac[${ Date.now() - start }ms][check register][${document}][${url}]\n` )
+    ndErrorStream.write(
+      `[${new Date().toISOString()}]time sac[${ Date.now() - start }ms][check register][${document}][${url}]\n`
+    )
   }
 
   if ( !Array.isArray( data ) ) return res.status( 500 ).json()
 
   data = data.shift()
 
-  if ( data.codigoDaPessoaAssinante === 0 ) return res.status( 404 )
+  if ( data.codigoDaPessoaAssinante === 0 ) return res.status( 404 ).json()
 
   await connection( 'users_nd_info' ).delete().where( 'user', id )
 
