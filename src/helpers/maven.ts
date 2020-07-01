@@ -60,24 +60,31 @@ namespace Maven {
         const tmp = await Dir.temp( 'pdf-tmp-' )
         emitter.emit( 'count', response.data.length )
 
-        const pdfs = await Promise.all( response.data.map(
-          ( url, index ) => new Promise<string>( async ( resolve, reject ) => {
-            const output = path.join( tmp, `${index}.pdf` )
-            const writer = fs.createWriteStream( path.join( tmp, `${index}.pdf` ) )
-            const response = await Axios.get( url, { responseType: 'stream' } )
-            response.data.pipe( writer )
-            let error: Error
-            writer.on( 'error', err => {
-              error = err
-              writer.close()
-              reject( err )
+        const pdfs: string[] = []
+        for ( let { url, index } of response.data.map( ( url, index ) => ( { url, index } ) ) )
+          try {
+            const pdf = await new Promise<string>( async ( resolve, reject ) => {
+              const output = path.join( tmp, `${index}.pdf` )
+              const writer = fs.createWriteStream( path.join( tmp, `${index}.pdf` ) )
+              const response = await Axios.get( url, { responseType: 'stream' } )
+              response.data.pipe( writer )
+              let error: Error
+              writer.on( 'error', err => {
+                error = err
+                writer.close()
+                reject( err )
+              } )
+              writer.on( 'close', () => {
+                emitter.emit( 'download', output )
+                !error && resolve( output )
+              } )
             } )
-            writer.on( 'close', () => {
-              emitter.emit( 'download', output )
-              !error && resolve( output )
-            } )
-          } )
-        ) )
+            pdfs.push( pdf )
+          } catch ( e ) {
+            emitter.emit( 'error', e )
+            await Dir.remove( tmp, { recursive: true } )
+            return Promise.reject( e )
+          }
 
         const pdf = await PDF.merge( ...pdfs )
 
@@ -85,7 +92,7 @@ namespace Maven {
 
         emitter.emit( 'done', pdf )
 
-      } catch ( e ) { emitter.emit( 'error', e.message ) }
+      } catch ( e ) { emitter.emit( 'error', e ) }
     } )()
 
     return emitter

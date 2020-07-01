@@ -20,8 +20,9 @@ const year = args.year ?? new Date().getFullYear();
     output: string
     ed: string
   }>( async ( resolve, reject ) => {
+    const format = `[DOWNLOAD][${index+1}/${count}] ${edition.ed.replace( /,$/, '' )} | {bar} {percentage}% || pages: {value}/{total} || ETA: {eta}s`
     const progress = new cliProgress.SingleBar(
-      { format: `[DOWNLOAD][${index+1}/${count}] ${edition.ed.replace( /,$/, '' )} | {bar} {percentage}% || pages: {value}/{total} || ETA: {eta}s` },
+      { format },
       cliProgress.Presets.shades_classic )
 
     progress.start( 20, 0 )
