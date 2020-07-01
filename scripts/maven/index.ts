@@ -1,22 +1,27 @@
 import Times from '@cookiex/times'
 import cliProgress from 'cli-progress'
 import path from 'path'
+import yargs from 'yargs'
 
 import connection from '../../src/helpers/connection'
 import Maven from '../../src/helpers/maven'
 import Dir from '../../src/models/Dir'
 import File from '../../src/models/File'
 
+const args = yargs.argv as any
+
+const year = args.year ?? new Date().getFullYear();
+
 ( async () => {
 
-  const download = ( edition: any ) => new Promise<{
+  const download = ( edition: any, index: number, count: number ) => new Promise<{
     url: string
     pagesCount: number
     output: string
     ed: string
   }>( async ( resolve, reject ) => {
     const progress = new cliProgress.SingleBar(
-      { format: `[DOWNLOAD] ${edition.ed.replace( /,$/, '' )} | {bar} {percentage}% || pages: {value}/{total} || ETA: {eta}s` },
+      { format: `[DOWNLOAD][${index+1}/${count}] ${edition.ed.replace( /,$/, '' )} | {bar} {percentage}% || pages: {value}/{total} || ETA: {eta}s` },
       cliProgress.Presets.shades_classic )
 
     progress.start( 20, 0 )
@@ -51,13 +56,13 @@ import File from '../../src/models/File'
 
   if ( !await File.exists( folder ) ) await Dir.make( folder, { recursive: true } )
 
-  const { data: editions } = await Maven.editions()
+  const { data: editions } = await Maven.editions( year )
 
   console.log( `download ${editions.length} editions` )
 
-  for ( let edition of editions ) {
+  for ( let { edition, index } of editions.map( ( edition, index ) => ( { edition, index } ) ) ) {
     try {
-      const info = await download( edition )
+      const info = await download( edition, index, editions.length )
       try {
         const results = await connection( 'newspaper_editions' )
           .where( 'ed_maven_number', info.ed )

@@ -9,9 +9,9 @@ import PDF from '../tools/merge-pdfs'
 
 namespace Maven {
   export const api = Axios.create( {} )
-  export const magazines = async () => {
+  export const magazines = async ( year?: number ) => {
     try {
-      const response = await api.get<Magazine.Response>( '' )
+      const response = await api.get<Magazine.Response>( '', { params: { ano: year } } )
       const clients = response.data.app.Cliente
       const client = clients.shift()
       const magazines = client.Revista.map( magazine => ( {
@@ -30,9 +30,9 @@ namespace Maven {
       return Promise.resolve( { ...response, data } )
     } catch ( e ) { return Promise.reject( e ) }
   }
-  export const editions = async () => {
+  export const editions = async ( year?: number ) => {
     try {
-      const response = await magazines()
+      const response = await magazines( year )
       const data = response.data.shift().editions
       return Promise.resolve( { ...response, data } )
     } catch ( e ) { return Promise.reject( e ) }
