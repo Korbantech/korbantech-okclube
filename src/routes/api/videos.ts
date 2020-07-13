@@ -1,11 +1,12 @@
 import { AxiosResponse } from 'axios'
 import Express from 'express'
 
+import cacheHandler from '../../handlers/cache'
 import wpApi from '../../helpers/wp-api'
 
 const videos = Express.Router()
 
-videos.get( '/videos', async ( req, res ) => {
+videos.get( '/videos', cacheHandler( 2 * 60 * 60 * 1000 ), async ( req, res ) => {
   const limit = parseInt( req.query?.per?.toString() || req.query?.limit?.toString() || '30' )
   const page = parseInt( req.query?.page?.toString() || '0' ) + 1
   const locations: string[] = req.query?.locations?.toString()

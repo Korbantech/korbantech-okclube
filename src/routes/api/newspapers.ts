@@ -1,13 +1,14 @@
 import Times from '@cookiex/times'
 import Express from 'express'
 
+import cacheHandler from '../../handlers/cache'
 import connection from '../../helpers/connection'
 
 const newspapers = Express.Router()
 
 const route = newspapers.route( '/newspapers' )
 
-route.get( async ( req, res ) => {
+route.get( cacheHandler( 30 * 60 * 60 * 1000 ), async ( req, res ) => {
   const limit = parseInt( req.query?.per?.toString() || '30' )
   const page = parseInt( req.query?.page?.toString() || '0' )
   const order = req.query?.order?.toString() || 'id'

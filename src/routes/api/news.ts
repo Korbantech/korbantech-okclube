@@ -64,7 +64,7 @@ news.get( '/news', async ( req, res ) => {
 
     if ( formats.length > 1 ) return res.status( 422 ).json()
     
-    else promise = wpApi.get( '/ndmais/v1/content/format/video/', options )
+    else promise = wpApi.get( `/ndmais/v1/content/format/${formats[0]}`, options )
 
   else promise = wpApi.get<any[]>( '/ndmais/v1/content/', options )
   

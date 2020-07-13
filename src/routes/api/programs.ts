@@ -1,12 +1,13 @@
 import { AxiosResponse } from 'axios'
 import Express from 'express'
 
+import cacheHandler from '../../handlers/cache'
 import connection from '../../helpers/connection'
 import wpApi from '../../helpers/wp-api'
 
 const programs = Express.Router()
 
-programs.get( '/programs', async ( req, res ) => {
+programs.get( '/programs', cacheHandler( 2 * 60 * 60 * 1000 ), async ( req, res ) => {
   const locations: string[] = req.query?.locations?.toString()
     .split( ',' ) || []
 
