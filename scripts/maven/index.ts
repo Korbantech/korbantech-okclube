@@ -87,4 +87,5 @@ const year = args.year ?? new Date().getFullYear();
       console.log( 'error in download file ' + e )
     }
   }
+  connection.destroy()
 } )()
