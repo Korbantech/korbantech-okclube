@@ -76,7 +76,7 @@ const year = args.year ?? new Date().getFullYear();
               png_url: edition.info.CapaEdicao,
               pdf_url: info.url,
               pdf_file_path: info.output,
-              screening_date: Times.Date.from( 'd/m/Y', edition.data )
+	      screening_date: Times.Date.from( 'd/m/Y H:i:s', `${edition.data} 12:00:00` )
             } )
           console.log( 'save edition in database' )
         }
