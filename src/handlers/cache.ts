@@ -13,7 +13,6 @@ const cacheHandler = (
   middle: CacheHandlerMiddleware = defaultCacheHandleMiddleware
 ): Express.Handler => ( req, res, next ) => {
   const key = `__express__${req.originalUrl || req.url}`
-  console.log( key )
   const data = memoryCache.get( key )
   if ( data ) return middle( data, res, req )
 
