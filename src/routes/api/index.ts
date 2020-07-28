@@ -3,6 +3,7 @@ import Express from 'express'
 import fs from 'fs'
 
 import connection from '../../helpers/connection'
+import internals from './internals'
 import mail from './mail'
 import news from './news'
 import newspapers from './newspapers'
@@ -18,6 +19,7 @@ ndErrorStream.write( content )
 
 const api = Express.Router()
 
+api.use( internals )
 api.use( news )
 api.use( videos )
 api.use( newspapers )
