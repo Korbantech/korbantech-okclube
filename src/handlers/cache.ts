@@ -1,14 +1,26 @@
 import Express from 'express'
 import memoryCache from 'memory-cache'
 
-const cacheHandler = ( duration: number ): Express.Handler => ( req, res, next ) => {
+interface CacheHandlerMiddleware {
+  ( data: any, res: Express.Response, req: Express.Request ): void
+}
+
+const defaultCacheHandleMiddleware: CacheHandlerMiddleware =
+  ( data, res ) => { res.send( data ) }
+
+const cacheHandler = (
+  duration: number,
+  middle: CacheHandlerMiddleware = defaultCacheHandleMiddleware
+): Express.Handler => ( req, res, next ) => {
   const key = `__express__${req.originalUrl || req.url}`
   console.log( key )
   const data = memoryCache.get( key )
-  if ( data ) return res.send( data )
+  if ( data ) return middle( data, res, req )
 
   // @ts-ignore
   res.sendResponse = res.send
+  // @ts-ignore
+  res.setHeaderResponse = res.setHeader
   // @ts-ignore
   res.send = ( body ) => {
     memoryCache.put( key, body, duration )
