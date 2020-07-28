@@ -1,12 +1,11 @@
 import { AxiosResponse } from 'axios'
 import Express from 'express'
 
-import cacheHandler from '../../handlers/cache'
 import wpApi from '../../helpers/wp-api'
 
 const news = Express.Router()
 
-news.get( '/news', cacheHandler( 30 * 60 * 1000 ), async ( req, res ) => {
+news.get( '/news', async ( req, res ) => {
   const limit = parseInt( req.query?.per?.toString() || req.query?.limit?.toString() || '30' )
   const page = parseInt( req.query?.page?.toString() || '0' ) + 1
 
