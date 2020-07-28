@@ -9,9 +9,13 @@ import dashboard from './routes/dashboard'
 const app = ( () => {
   const express = Express()
 
-  const app = ExpressWs( express, undefined, {} )
+  const instace = ExpressWs( express )
+  const webscoket = instace.getWss()
 
-  return app.app
+  instace.app.set( 'webscoket', webscoket )
+  instace.app.set( 'ws', webscoket )
+
+  return instace.app
 } )()
 
 app.set( 'view engine', 'pug' )
@@ -24,3 +28,5 @@ app.use( vhost( /^dashboard\..*/, dashboard ) )
 app.use( vhost( /^api\..*/, api ) )
 
 app.listen( 9000, () => { console.log( 'server start' ) } )
+
+export default app
