@@ -19,8 +19,6 @@ const cacheHandler = (
   // @ts-ignore
   res.sendResponse = res.send
   // @ts-ignore
-  res.setHeaderResponse = res.setHeader
-  // @ts-ignore
   res.send = ( body ) => {
     memoryCache.put( key, body, duration )
     // @ts-ignore

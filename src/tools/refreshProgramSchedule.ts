@@ -36,7 +36,7 @@ export interface NormalizedProgram {
   }
 }
 
-const bgsIds = [ 183149, 183155, 183146, 183148, 754493, 183157, 1096523 ]
+const bgsIds = [ 183149, 183146, 183148, 754493, 183157, 1096523, 1075190 ]
 
 const normalizePrograms = ( programs: any[] ): NormalizedProgram[] =>
   programs
@@ -44,7 +44,7 @@ const normalizePrograms = ( programs: any[] ): NormalizedProgram[] =>
     .map( ( program: any ) => ( {
       slug: program.slug,
       id: program.ID,
-      name: program.ID === 1075190 ? 'Balanço Geral' : program.name,
+      name: program.ID === 183155 ? 'Balanço Geral' : program.name,
       schedule: Object.fromEntries(
         Object.entries( program.schedule )
           .map( ( [ key, value ] ) => [ key.replace( /^schedule_/, '' ), value[0] ] )
