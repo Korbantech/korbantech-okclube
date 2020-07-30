@@ -26,7 +26,7 @@ route.route( '/schedule-programs' )
               .map( ( [ day, job ] ) => [ day, { 
                 cron: job.cron,
                 next: job.nextInvocation(),
-                locale: new Date( job.nextInvocation() ).toLocaleDateString()
+                locale: new Date( job.nextInvocation() ).toLocaleTimeString()
               } ] )
           ) ]
         } )
@@ -44,7 +44,7 @@ route.route( '/schedule-programs/:day' )
         .map( ( [ slug, info ] ) => [ slug, {
           cron: info.schedule[day].cron,
           next: info.schedule[day].nextInvocation(),
-          locale: new Date( info.schedule[day].nextInvocation() ).toLocaleDateString(),
+          locale: new Date( info.schedule[day].nextInvocation() ).toLocaleTimeString(),
         } ] )
     )
     return res.json( result )
@@ -59,7 +59,7 @@ route.route( '/schedule-programs/:slug' )
         .map( ( [ day, job ] ) => [ day, {
           cron: job.cron,
           next: job.nextInvocation(),
-          locale: new Date( job.nextInvocation() ).toLocaleDateString()
+          locale: new Date( job.nextInvocation() ).toLocaleTimeString()
         } ] )
     )
     return res.json( result )
@@ -74,7 +74,7 @@ route.route( '/schedule-programs/:slug/:day' )
     const job = scheduleStorage[slug].schedule[day]
     const cron = job.cron
     const next = job.nextInvocation()
-    const locale = new Date( job.nextInvocation() ).toLocaleDateString()
+    const locale = new Date( job.nextInvocation() ).toLocaleTimeString()
     return res.json( { cron, next, locale } )
   } )
   .post( ( req, res ) => {
