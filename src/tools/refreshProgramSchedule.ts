@@ -84,7 +84,7 @@ const createJobFromEntry = ( program: NormalizedProgram, day: string, time: stri
 
     await transport.sendMail( {
       from: 'devkorbantech@gmail.com',
-      to: 'antonio@korbantech.com.br',
+      to: [ 'antonio@korbantech.com.br', 'aws@korbantech.com.br' ],
       subject: `Notification details of ${program.name}(${program.id})`,
       html: `
         <table>
