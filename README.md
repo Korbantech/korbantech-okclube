@@ -81,3 +81,8 @@
   ```
   <project folder>/server.log
   ```
+
+- ### Notifications
+  ```
+  <project folder>/notifications.log
+  ```
