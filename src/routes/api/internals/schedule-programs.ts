@@ -23,7 +23,11 @@ route.route( '/schedule-programs' )
         .map( ( [ slug, info ] ) => {
           return [ slug, Object.fromEntries(
             Object.entries( info.schedule )
-              .map( ( [ day, job ] ) => [ day, { cron: job.cron, next: job.nextInvocation() } ] )
+              .map( ( [ day, job ] ) => [ day, { 
+                cron: job.cron,
+                next: job.nextInvocation(),
+                locale: job.nextInvocation().toLocaleDateString()
+              } ] )
           ) ]
         } )
     )
@@ -39,7 +43,8 @@ route.route( '/schedule-programs/:day' )
         .filter( ( [ , info ] ) => info.schedule[day] )
         .map( ( [ slug, info ] ) => [ slug, {
           cron: info.schedule[day].cron,
-          next: info.schedule[day].nextInvocation()
+          next: info.schedule[day].nextInvocation(),
+          locale: info.schedule[day].nextInvocation().toLocaleDateString(),
         } ] )
     )
     return res.json( result )
@@ -51,7 +56,11 @@ route.route( '/schedule-programs/:slug' )
     if ( !scheduleStorage[slug] ) return res.status( 404 ).json()
     const result = Object.fromEntries(
       Object.entries( scheduleStorage[slug].schedule )
-        .map( ( [ day, job ] ) => [ day, { cron: job.cron, next: job.nextInvocation() } ] )
+        .map( ( [ day, job ] ) => [ day, {
+          cron: job.cron,
+          next: job.nextInvocation(),
+          locale: job.nextInvocation().toLocaleDateString()
+        } ] )
     )
     return res.json( result )
   } )
@@ -64,7 +73,8 @@ route.route( '/schedule-programs/:slug/:day' )
     if ( !scheduleStorage[slug] || !scheduleStorage[slug].schedule[day] ) return res.status( 404 ).json()
     const cron = scheduleStorage[slug].schedule[day].cron
     const next = scheduleStorage[slug].schedule[day].nextInvocation()
-    return res.json( { cron, next } )
+    const locale = scheduleStorage[slug].schedule[day].nextInvocation().toLocaleDateString()
+    return res.json( { cron, next, locale } )
   } )
   .post( ( req, res ) => {
     const slug = req.params.slug

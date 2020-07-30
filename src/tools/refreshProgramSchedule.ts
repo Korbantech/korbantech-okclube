@@ -71,8 +71,9 @@ const createJobFromEntry = ( program: NormalizedProgram, day: string, time: stri
       .whereIn( 'users.id', firebaseUsers.map( user => user.id ) )
 
     const tokens = firebaseUsers
-      .filter( fuser => users.some( user => fuser.id === user.id ) ).map( fuser => fuser.token )
-    
+      .filter( fuser => users.some( user => fuser.id === user.id ) )
+      .map( fuser => fuser.token )
+
     firebase.messaging().sendToDevice( tokens, {
       notification: {
         title: `${program.name}`,
