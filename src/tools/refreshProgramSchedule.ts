@@ -2,6 +2,7 @@ import schedule from 'node-schedule'
 
 import connection from '../helpers/connection'
 import firebase from '../helpers/firebase'
+import transport from '../helpers/transport'
 import wpApi from '../helpers/wp-api'
 
 export interface CustomJob extends schedule.Job {
@@ -74,11 +75,45 @@ const createJobFromEntry = ( program: NormalizedProgram, day: string, time: stri
       .filter( fuser => users.some( user => fuser.id === user.id ) )
       .map( fuser => fuser.token )
 
-    firebase.messaging().sendToDevice( tokens, {
+    const response = await firebase.messaging().sendToDevice( tokens, {
       notification: {
         title: `${program.name}`,
         body: `O programa ${program.name} está no ar`
       }
+    } )
+
+    await transport.sendMail( {
+      from: 'devkorbantech@gmail.com',
+      to: 'antonio@korbantech.com.br',
+      subject: `Notification details of ${program.name}(${program.id})`,
+      html: `
+        <table>
+          <tr>
+            <td>Success</td>
+            <td>Faileds</td>
+          </tr>
+          <tr>
+            <td>${response.successCount}</td>
+            <td>${response.failureCount}</td>
+          </tr>
+        </table>
+        <table>
+          <thead>
+            <tr>
+              <th>Error</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${response.results.map( result => `
+              <tr>
+                <td>
+                  [${result.error.code}]${result.error.message}
+                </td>
+              </tr>
+            ` ).join( ' ' )}
+          </tbody>
+        </table>
+      `,
     } )
   }
   const job = schedule.scheduleJob( `${program.slug}_${day}`, cron, caller )

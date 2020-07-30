@@ -1,18 +1,10 @@
 import Express from 'express'
-import nodemailer from 'nodemailer'
 import path from 'path'
 import pug from 'pug'
 import pugStylus from 'pug-stylus'
 
 import connection from '../../helpers/connection'
-
-const transport = nodemailer.createTransport( {
-  service: 'gmail',
-  auth: {
-    user: 'devkorbantech@gmail.com',
-    pass: 'K0rb@nt3ch@1502'
-  }
-} )
+import transport from '../../helpers/transport'
 
 const template = pug.compileFile( path.resolve( 'views', 'recover.pug' ), {
   filters: { stylus: pugStylus() }
@@ -38,7 +30,7 @@ mail.post( '/recover', async ( req, res ) => {
 
   await transport.sendMail( {
     from: 'devkorbantech@gmail.com',
-    to: 'tony.js@zoho.eu',
+    to: user.mail,
     subject: 'Recuperação de senha',
     html: template( { code, user } ),
   } )
