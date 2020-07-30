@@ -1,9 +1,12 @@
+import fs from 'fs'
 import schedule from 'node-schedule'
+import os from 'os'
 
 import connection from '../helpers/connection'
 import firebase from '../helpers/firebase'
 import transport from '../helpers/transport'
 import wpApi from '../helpers/wp-api'
+
 
 export interface CustomJob extends schedule.Job {
   cron: string
@@ -54,10 +57,12 @@ const normalizePrograms = ( programs: any[] ): NormalizedProgram[] =>
 
 export const days = [ 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday' ]
 
+const logger = fs.createWriteStream( 'notifications.log' )
+
 const createJobFromEntry = ( program: NormalizedProgram, day: string, time: string ) => {
   const [ hour, min ] = time.split( ':' )
   const cron = `${min} ${hour} * * ${days.indexOf( day )}`
-  const caller = async () => {
+  const caller = async ( date: Date ) => {
     const collections = await firebase.firestore().collection( 'users' ).get()
     const firebaseUsers: { id: number, token: string }[] = []
 
@@ -81,6 +86,24 @@ const createJobFromEntry = ( program: NormalizedProgram, day: string, time: stri
         body: `O programa ${program.name} está no ar`
       }
     } )
+
+    const log =
+      `[${date.toLocaleString()}]` +
+      `[success]${response.successCount}` +
+      `[failure]${response.failureCount}` +
+      `[messages](${os.EOL}${response.results.map( result =>
+        '  ' + 
+        `[token]${result.canonicalRegistrationToken}` +
+        `[error]${!!result.error?.message}` +
+        result.error?.message ?
+          `[code]${result.error.code}` +
+          `[message]${result.error.message}` +
+          `[stack]${result.error.stack}` :
+          ''
+      ).join( os.EOL )})` +
+      os.EOL + os.EOL
+
+    logger.write( log )
 
     await transport.sendMail( {
       from: 'devkorbantech@gmail.com',
