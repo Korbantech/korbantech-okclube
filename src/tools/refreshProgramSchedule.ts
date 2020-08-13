@@ -2,6 +2,7 @@ import fs from 'fs'
 import schedule from 'node-schedule'
 import os from 'os'
 
+import { IS_DEVELOPER_ENVIRONMENT } from '../constants'
 import connection from '../helpers/connection'
 import firebase from '../helpers/firebase'
 import transport from '../helpers/transport'
@@ -96,9 +97,9 @@ const createJobFromEntry = ( program: NormalizedProgram, day: string, time: stri
         `[token]${result.canonicalRegistrationToken}` +
         `[error]${!!result.error?.message}` +
         result.error?.message ?
-          `[code]${result.error.code}` +
-          `[message]${result.error.message}` +
-          `[stack]${result.error.stack}` :
+          `[code]${result.error?.code}` +
+          `[message]${result.error?.message}` +
+          `[stack]${result.error?.stack}` :
           ''
       ).join( os.EOL )})` +
       os.EOL + os.EOL
@@ -167,4 +168,4 @@ const refreshProgramSchedule = async () => {
 
 export default refreshProgramSchedule
 
-refreshProgramSchedule()
+if ( IS_DEVELOPER_ENVIRONMENT ) refreshProgramSchedule()

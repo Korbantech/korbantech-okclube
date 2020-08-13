@@ -13,9 +13,9 @@ import recover from './recover'
 import users from './users'
 import videos from './videos'
 
-const content = fs.readFileSync( 'nd-error.log' )
-const ndErrorStream = fs.createWriteStream( 'nd-error.log' )
-ndErrorStream.write( content )
+const ndErrorStream = fs.createWriteStream( 'nd-error.log', {
+  flags: 'a'
+} )
 
 const api = Express.Router()
 
@@ -116,41 +116,18 @@ api.get( '/register/:cpf', async ( req, res ) => {
 
     data = data.shift()
 
-    if ( data.codigoDaPessoaAssinante === 0 ) {
-      const user = ( await connection( 'users' )
-        .insert( {} ) ).pop()
-      await connection( 'users_nd_info' ).insert( {
-        user,
-        document,
-      } ) 
-      return res.json( { id: user, document } )
-    }
+    if ( data.codigoDaPessoaAssinante === 0 )
+      return res.json( { document } )
 
-    const user = ( await connection( 'users' )
-      .insert( {
-        name: data.nomeDoBeneficario || data.nomeDoAssinante,
-        mail: data.email
-      } ) ).pop()
-
-    await connection( 'users_nd_info' ).insert( {
-      user,
+    const dataUser = {
+      name: data.nomeDoBeneficario || data.nomeDoAssinante,
+      mail: data.email,
       code: data.codigoDaPessoaAssinante,
       document: data.identMF,
-      valid: data.dataDeValidade
-    } )
+      valid: data.dataDeValidade,
+    }
 
-    const info = await connection( 'users' )
-      .select( [ 'users.*', 'users_nd_info.*', 'users_meta_info.birthday', 'users_photos.photo' ] )
-      .where( 'users.id', user )
-      .join( 'users_nd_info', 'users_nd_info.user', 'users.id' )
-      .leftJoin( 'users_meta_info', 'users_meta_info.user', 'users.id' )
-      .leftJoin( 'users_photos', 'users_photos.user', 'users.id' )
-      .column( connection.raw( 'users_meta_info.facebook_uri AS facebook' ) )
-      .column( connection.raw( 'users_meta_info.twitter_uri AS twitter' ) )
-      .column( connection.raw( 'users_meta_info.instagram_uri AS instagram' ) )
-      .first()
-
-    return res.json( info )
+    return res.json( dataUser )
   }
 
   res.status( 200 ).json( { ...user, alreadyExists: true } )

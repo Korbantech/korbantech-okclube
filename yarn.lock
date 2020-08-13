@@ -1005,6 +1005,21 @@
     eslint-plugin-sort-class-members "^1.6.0"
     typescript "^3.7.5"
 
+"@cookiex/eslint-config@^0.3.3":
+  version "0.3.3"
+  resolved "https://registry.yarnpkg.com/@cookiex/eslint-config/-/eslint-config-0.3.3.tgz#612a57d7eb538e7460e811b4f96bf52a482c08ba"
+  integrity sha512-EUyflLm0LGqr4SNQI7288J+sd8dqxttJLab1hn9HpEEhVqFeEU15lQ7oOJkJFmoXPkUbYqmvXcZabJ+Iq7qh+w==
+  dependencies:
+    "@typescript-eslint/eslint-plugin" "^2.19.0"
+    "@typescript-eslint/parser" "^2.19.0"
+    babel-eslint "^10.1.0"
+    eslint-plugin-eslint-comments "^3.1.2"
+    eslint-plugin-import-helpers "^1.0.2"
+    eslint-plugin-jest "^23.8.1"
+    eslint-plugin-prefer-arrow "^1.1.7"
+    eslint-plugin-sort-class-members "^1.6.0"
+    typescript "^3.7.5"
+
 "@cookiex/times@^1.0.1":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@cookiex/times/-/times-1.0.1.tgz#5831e0d032eeff713425aaaaaf52cc6d872662d7"
@@ -3637,6 +3652,11 @@ dot-prop@^5.2.0:
   integrity sha512-uEUyaDKoSQ1M4Oq8l45hSE26SnTxL6snNnqvK/VWx5wJhmff5z0FUVJDKDanor/6w3kzE3i7XZOk+7wC0EXr1A==
   dependencies:
     is-obj "^2.0.0"
+
+dotenv@^8.2.0:
+  version "8.2.0"
+  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-8.2.0.tgz#97e619259ada750eea3e4ea3e26bceea5424b16a"
+  integrity sha512-8sJ78ElpbDJBHNeBzUbUVLsqKdccaa/BXF1uPTw3GrvQTBgrQrtObr2mUrE38vzYd8cEv+m/JBfDLioYcfXoaw==
 
 duplexer3@^0.1.4:
   version "0.1.4"

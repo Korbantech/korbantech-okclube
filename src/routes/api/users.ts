@@ -36,17 +36,13 @@ route.post( async ( req, res ) => {
 
 route.put( async ( req, res ) => {
 
-  const id = req.body.id || req.body.user || req.body.userId
+  let id = req.body.id || req.body.user || req.body.userId
 
   const user = {
     mail: req.body.mail,
     name: req.body.name,
     pass: req.body.pass
   }
-
-  await connection( 'users' )
-    .update( user )
-    .where( 'id', '=', id )
 
   const ndInfo = {
     tel: req.body.tel,
@@ -64,15 +60,34 @@ route.put( async ( req, res ) => {
     birthday: new Date( req.body.birthday )  
   }
 
+  if ( !id ) 
+    await connection( 'users' ).insert( user )
+      .then( ( [ userId ] ) => {
+        id = userId
+        /* eslint-disable array-element-newline */
+        /* eslint-disable array-bracket-newline */
+        return Promise.all( [
+          connection( 'users_nd_info' ).insert( { ...ndInfo, user: id } ),
+          connection( 'users_meta_info' ).insert( { ...metaInfo, user: id } )
+        ] )
+      } )
+
+  else
+    /* eslint-disable array-element-newline */
+    /* eslint-disable array-bracket-newline */
+    await Promise.all( [
+      connection( 'users' )
+        .update( user )
+        .where( 'id', '=', id ),
+      connection( 'users_nd_info' )
+        .update( ndInfo )
+        .where( 'user', '=', id ),
+      connection( 'users_meta_info' )
+        .update( metaInfo )
+        .where( 'user', '=', id )
+    ] )
+
   let photo: string | null = req.body.photo?.replace( /^data:image\/[a-z]{3,4};base64,/, '' ) || null
-
-  await connection( 'users_nd_info' )
-    .update( ndInfo )
-    .where( 'user', '=', id )
-
-  await connection( 'users_meta_info' )
-    .update( metaInfo )
-    .where( 'user', '=', id )
 
   await connection( 'users_photos' )
     .delete()

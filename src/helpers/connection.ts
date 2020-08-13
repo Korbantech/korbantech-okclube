@@ -5,10 +5,10 @@ import os from 'os'
 const connection = knexCreate( {
   client: 'mysql',
   connection: {
-    database: 'api_nd_homolog',
-    user: 'api_nd',
-    password: 'homolog@2k20',
-    host: 'korbantechsites.csiwmkjtlagy.us-east-1.rds.amazonaws.com'
+    database: process.env.MYSQL_DATABASE,
+    user: process.env.MYSQL_USER,
+    password: process.env.MYSQL_PASS,
+    host: process.env.MYSQL_HOST
   }
 } )
 

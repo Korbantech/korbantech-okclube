@@ -8,7 +8,6 @@ import yargs from 'yargs'
 
 import { IS_PRODUCTION_ENVIRONMENT } from './constants'
 import api from './routes/api'
-import dashboard from './routes/dashboard'
 
 const args: {
   port: string,
@@ -42,8 +41,7 @@ app.use( morgan( app.get( 'log type' ), { stream } ) )
 app.use( bodyparser.urlencoded( { extended: true } ) )
 app.use( bodyparser.json( { limit: '100mb' } ) )
 
-app.use( vhost( /^dashboard\..*/, dashboard ) )
-
+app.use( '/api', api )
 app.use( vhost( /^api\..*/, api ) )
 
 app.listen( app.get( 'port' ), () => {

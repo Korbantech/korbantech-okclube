@@ -45,49 +45,88 @@ polls.post( '/polls/:id/comments', async ( req, res ) => {
   return res.json()
 } )
 
-polls.get( '/polls/:id', async ( req, res ) => {
-  if ( !req.params.id ) return res.status( 422 ).json()
+polls.route( '/polls:id' )
+  .get( async ( req, res ) => {
+    if ( !req.params.id ) return res.status( 422 ).json()
+  
+    const user = req.query?.user?.toString()
+  
+    const query = connection( 'polls_responses' )
+      .select()
+      .column( connection.raw( '`polls_responses`.`response` AS `key`' ) )
+      .column( connection.raw( 'COUNT( `polls_responses`.`response` ) AS `qty`' ) )
+      .where( 'poll', req.params.id )
+      .groupBy( 'response' )
+  
+    if ( user ) query.where( 'user', user )
+  
+    return res.json( await query )
+  } )
+  .post( async ( req, res ) => {
+    if ( !req.params.id ) return res.status( 422 ).json()
+    const user = req.body?.user
+    if ( !user ) return res.status( 422 ).json()
+    const response = req.body?.response
+    if ( !response ) return res.status( 422 ).json()
+  
+    await connection( 'polls_responses' )
+      .insert( { user, poll: req.params.id, response } )
+  
+    const query = connection( 'polls_responses' )
+      .select()
+      .column( connection.raw( '`polls_responses`.`response` AS `key`' ) )
+      .column( connection.raw( 'COUNT( `polls_responses`.`response` ) AS `qty`' ) )
+      .where( 'poll', req.params.id )
+      .groupBy( 'response' )
+  
+    return res.json( await query )
+  } )
+  .put( async ( req, res ) => {
+    if ( !req.params.id ) return res.status( 422 ).json()
+    if ( !req.body.text ) return res.status( 422 ).json( { message: 'no text' } )
+    if ( !req.body.program ) return res.status( 422 ).json( { nessage: 'no program' } )
+    
+    await connection( 'polls' )
+      .where( 'id', req.params.id )
+      .update( {
+        text: req.body.text,
+        program: req.body.program
+      } )
 
-  const user = req.query?.user?.toString()
+    const poll = await connection( 'polls' )
+      .select()
+      .where( 'id', req.params.id )
+      .first()
+    
+    return res.json( poll )
+  } )
+  .patch( async ( req, res ) => {
+    if ( !req.params.id ) return res.status( 422 ).json()
+    const data: any = {}
+    if ( req.body.text ) data.text = req.body.text
+    if ( req.body.program ) data.program = req.body.program
 
-  const query = connection( 'polls_responses' )
-    .select()
-    .column( connection.raw( '`polls_responses`.`response` AS `key`' ) )
-    .column( connection.raw( 'COUNT( `polls_responses`.`response` ) AS `qty`' ) )
-    .where( 'poll', req.params.id )
-    .groupBy( 'response' )
+    await connection( 'polls' )
+      .where( 'id', req.params.id )
+      .update( data )
 
-  if ( user ) query.where( 'user', user )
+    const poll = await connection( 'polls' )
+      .select()
+      .where( 'id', req.params.id )
+      .first()
+    
+    return res.json( poll )
+  } )
+  .delete( async ( req, res ) => {
+    if ( !req.params.id ) return res.status( 422 ).json()
 
-  return res.json( await query )
-} )
-
-polls.post( '/polls/:id', async ( req, res ) => {
-  if ( !req.params.id ) return res.status( 422 ).json()
-  const user = req.body?.user
-  if ( !user ) return res.status( 422 ).json()
-  const response = req.body?.response
-  if ( !response ) return res.status( 422 ).json()
-
-  await connection( 'polls_responses' )
-    .insert( {
-      user,
-      poll: req.params.id,
-      response
-    } )
-
-  const query = connection( 'polls_responses' )
-    .select()
-    .column( connection.raw( '`polls_responses`.`response` AS `key`' ) )
-    .column( connection.raw( 'COUNT( `polls_responses`.`response` ) AS `qty`' ) )
-    .where( 'poll', req.params.id )
-    .groupBy( 'response' )
-
-  return res.json( await query )
-} )
+    await connection( 'polls' )
+      .where( 'id', req.params.id )
+      .update( { deleted_at: new Date() } )
+  } )
 
 polls.get( '/polls', async ( req, res ) => {
-  const limit = parseInt( req.query?.per?.toString() || '30' )
+  const limit = parseInt( req.query?.per?.toString() || req.query?.limit?.toString() || '30' )
   const page = parseInt( req.query?.page?.toString() || '0' )
   const order = req.query?.order?.toString() || 'created_at'
 
@@ -117,7 +156,6 @@ polls.get( '/polls', async ( req, res ) => {
     } )
     .column( connection.raw( 'polls_responses.response AS response' ) )
 
-  console.log( query.toString() )
   return res.json( await query )
 
 } )
