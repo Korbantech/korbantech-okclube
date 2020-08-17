@@ -1,3 +1,5 @@
+/* eslint-disable array-element-newline */
+/* eslint-disable array-bracket-newline */
 import Express from 'express'
 
 import connection from '../../helpers/connection'
@@ -7,6 +9,40 @@ import File from '../../models/File'
 const users = Express.Router()
 
 const route = users.route( '/user' )
+
+const userMetas = users.route( '/users/:id/metas' )
+
+userMetas
+  .put( async ( req, res ) => {
+    const user = req.param( 'id' )
+    const body = req.body ?? {}
+    await connection( 'users_metas' )
+      .where( 'user', user )
+      .whereIn( 'key', Object.keys( body ) )
+      .delete()
+
+    await connection( 'users_metas' )
+      .insert( Object.entries( body ).map( ( [ key, value ] ) => ( { user, key, value } ) ) )
+
+    const rows = await connection( 'users_metas' )
+      .select()
+      .where( 'user', user )
+
+    const metas = rows.reduce( ( group, { key, value } ) => ( { ...group, [key]: value } ), {} )
+
+    res.json( metas )
+  } )
+  .get( async ( req, res ) => {
+    const user = req.param( 'id' )
+
+    const rows = await connection( 'users_metas' )
+      .select()
+      .where( 'user', user )
+
+    const metas = rows.reduce( ( group, { key, value } ) => ( { ...group, [key]: value } ), {} )
+
+    res.json( metas )
+  } )
 
 route.post( async ( req, res ) => {
   const user = {
@@ -64,8 +100,6 @@ route.put( async ( req, res ) => {
     await connection( 'users' ).insert( user )
       .then( ( [ userId ] ) => {
         id = userId
-        /* eslint-disable array-element-newline */
-        /* eslint-disable array-bracket-newline */
         return Promise.all( [
           connection( 'users_nd_info' ).insert( { ...ndInfo, user: id } ),
           connection( 'users_meta_info' ).insert( { ...metaInfo, user: id } )
@@ -73,8 +107,6 @@ route.put( async ( req, res ) => {
       } )
 
   else
-    /* eslint-disable array-element-newline */
-    /* eslint-disable array-bracket-newline */
     await Promise.all( [
       connection( 'users' )
         .update( user )
