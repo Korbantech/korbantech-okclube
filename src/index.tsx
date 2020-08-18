@@ -7,6 +7,7 @@ import vhost from 'vhost'
 import yargs from 'yargs'
 
 import { IS_PRODUCTION_ENVIRONMENT } from './constants'
+import connection from './helpers/connection'
 import api from './routes/api'
 
 const args: {
@@ -45,7 +46,14 @@ app.use( '/api', api )
 app.use( vhost( /^api\..*/, api ) )
 
 app.listen( app.get( 'port' ), () => {
-  console.log( `running server in port ${app.get( 'port' )} usign envoriment mode ${app.get( 'environment' )}` )
+  connection.raw( 'SET GLOBAL sql_mode=( SELECT REPLACE( @@sql_mode, \'ONLY_FULL_GROUP_BY\', \'\' ) );' )
+    .then( () => {
+      console.log( `running server in port ${app.get( 'port' )} usign envoriment mode ${app.get( 'environment' )}` )
+    } )
+    .catch( () => {
+      console.error( 'failed to configure database' )
+      process.exit( 1 )
+    } )
 } )
 
 export default app

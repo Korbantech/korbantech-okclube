@@ -45,7 +45,7 @@ polls.post( '/polls/:id/comments', async ( req, res ) => {
   return res.json()
 } )
 
-polls.route( '/polls:id' )
+polls.route( '/polls/:id' )
   .get( async ( req, res ) => {
     if ( !req.params.id ) return res.status( 422 ).json()
   
@@ -84,13 +84,13 @@ polls.route( '/polls:id' )
   .put( async ( req, res ) => {
     if ( !req.params.id ) return res.status( 422 ).json()
     if ( !req.body.text ) return res.status( 422 ).json( { message: 'no text' } )
-    if ( !req.body.program ) return res.status( 422 ).json( { nessage: 'no program' } )
     
     await connection( 'polls' )
       .where( 'id', req.params.id )
       .update( {
         text: req.body.text,
-        program: req.body.program
+        program: req.body.program,
+        location: req.body.location
       } )
 
     const poll = await connection( 'polls' )
@@ -105,6 +105,7 @@ polls.route( '/polls:id' )
     const data: any = {}
     if ( req.body.text ) data.text = req.body.text
     if ( req.body.program ) data.program = req.body.program
+    if ( req.body.location ) data.program = req.body.location
 
     await connection( 'polls' )
       .where( 'id', req.params.id )
@@ -133,7 +134,12 @@ polls.get( '/polls', async ( req, res ) => {
   const excluded: 'on' | 'only' | 'true' | null =
     req.query?.excluded?.toString() as 'on' | 'only' | 'true' || null
 
-  let program: string | null = req.query?.program?.toString() || null
+  const program: string | null = req.query?.program?.toString() || null
+
+  const location: string | null = req.query?.location?.toString() || null
+
+  const restrict =
+    ( req.query?.restrict?.toString() as 'false' | 'true' || 'false' ) === 'true'
 
   const user = req.query?.user?.toString()
 
@@ -148,6 +154,10 @@ polls.get( '/polls', async ( req, res ) => {
   else if ( excluded === 'only' ) query.whereNotNull( 'deleted_at' )
 
   if ( program ) query.where( 'program', parseInt( program, 10 ) )
+  if ( location && restrict ) query.where( 'location', location )
+  else if ( location ) query.where( clause => {
+    clause.where( 'location', location ).orWhereNull( 'location' )
+  } )
 
   if ( user ) query
     .leftJoin( 'polls_responses', clause => {
@@ -162,12 +172,12 @@ polls.get( '/polls', async ( req, res ) => {
 
 polls.post( '/polls', async ( req, res ) => {
   if ( !req.body.text ) return res.status( 422 ).json( { message: 'no text' } )
-  if ( !req.body.program ) return res.status( 422 ).json( { nessage: 'no program' } )
   
   const ids = await connection( 'polls' )
     .insert( {
       text: req.body.text,
-      program: req.body.program
+      program: req.body.program,
+      location: req.body.location
     } )
 
   const poll = await connection( 'polls' )

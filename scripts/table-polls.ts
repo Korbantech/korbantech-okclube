@@ -8,7 +8,8 @@ connection
   .createTableIfNotExists( 'polls', table => {
     table.bigIncrements()
     table.text( 'text' ).notNullable()
-    table.bigInteger( 'program' ).unsigned().notNullable()
+    table.bigInteger( 'program' ).unsigned()
+    table.text( 'location' )
     table.timestamps( true, true )
     table.timestamp( 'deleted_at' )
   } )
