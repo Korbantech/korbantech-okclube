@@ -15,8 +15,7 @@ const connection = knexCreate( {
 const stream = fs.createWriteStream( 'knex.log' )
 
 connection.on( 'query', data => {
-  stream.write( `[${ new Date().toISOString() }]: ${JSON.stringify( data )}` )
-  stream.write( os.EOL )
+  stream.write( `[${new Date().toISOString()}]: ${data.sql} ${data.bindings.join( ',' )}${os.EOL}` )
 } )
 
 export default connection

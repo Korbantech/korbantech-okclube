@@ -1,5 +1,6 @@
 import { AxiosResponse } from 'axios'
 import Express from 'express'
+import memoryCache from 'memory-cache'
 
 import cacheHandler from '../../handlers/cache'
 import connection from '../../helpers/connection'
@@ -8,7 +9,11 @@ import wpApi from '../../helpers/wp-api'
 const programs = Express.Router()
 
 programs.get( '/programs',
-  cacheHandler( 2 * 60 * 60 * 1000, ( data, res ) => { res.json( JSON.parse( data ) ) } ),
+  cacheHandler(
+    2 * 60 * 60 * 1000,
+    ( data, res ) => res.json( JSON.parse( data ) ),
+    ( req ) => `programs_to_${req.query?.user?.toString()}`
+  ),
   async ( req, res ) => {
     const locations: string[] = req.query?.locations?.toString()
     .split( ',' ) || []
@@ -35,6 +40,8 @@ programs.get( '/programs',
       .whereIn( 'program', response.data.map( program => program.ID ) ) )
       .map( ( { program } ) => program )
 
+    console.log( ids )
+
     const programs = response.data.map( program => {
       if ( ids.includes( program.ID ) )
         return { ...program, favorite: true }
@@ -47,6 +54,8 @@ programs.get( '/programs',
 programs.post( '/programs/favorite', async ( req, res ) => {
   if ( !req.body.user || !req.body.program ) return res.status( 422 ).json()
 
+  memoryCache.del( `programs_to_${req.body.user}` )
+
   await connection( 'favorite_programs' )
     .insert( req.body )
 
@@ -55,6 +64,8 @@ programs.post( '/programs/favorite', async ( req, res ) => {
 
 programs.delete( '/programs/favorite', async ( req, res ) => {
   if ( !req.body.user || !req.body.program ) return res.status( 422 ).json()
+
+  memoryCache.del( `programs_to_${req.body.user}` )
 
   await connection( 'favorite_programs' )
     .delete()

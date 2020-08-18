@@ -10,11 +10,22 @@ const defaultCacheHandleMiddleware: CacheHandlerMiddleware =
 
 const cacheHandler = (
   duration: number,
-  middle: CacheHandlerMiddleware = defaultCacheHandleMiddleware
+  middle: CacheHandlerMiddleware = defaultCacheHandleMiddleware,
+  uniqueKey: string | null | ( ( req: Express.Request ) => string ) = null
 ): Express.Handler => ( req, res, next ) => {
-  const key = `__express__${req.originalUrl || req.url}`
+  const key = uniqueKey
+    ? typeof uniqueKey === 'function'
+      ? uniqueKey( req )
+      : uniqueKey
+    : `__express__${req.originalUrl || req.url}`
   const data = memoryCache.get( key )
+
   if ( data ) return middle( data, res, req )
+
+  // @ts-ignore
+  req.clearCache = () => {
+    memoryCache.del( `__express__${req.originalUrl || req.url}` )
+  }
 
   // @ts-ignore
   res.sendResponse = res.send
