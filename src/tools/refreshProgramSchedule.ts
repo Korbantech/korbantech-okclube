@@ -72,7 +72,7 @@ const createJobFromEntry = ( program: NormalizedProgram, day: string, time: stri
     const users = await connection( 'users' )
       .innerJoin( 'favorite_programs', 'favorite_programs.user', 'users.id' )
       .where( 'favorite_programs.program', program.id )
-      .whereIn( 'users.id', firebaseUsers.map( user => user.id ) )
+      .whereIn( 'users.id', firebaseUsers.filter( Boolean ).map( user => user.id ) )
 
     const tokens = firebaseUsers
       .filter( fuser => users.some( user => fuser.id === user.id || fuser === null ) )
