@@ -67,10 +67,7 @@ const createJobFromEntry = ( program: NormalizedProgram, day: string, time: stri
     const collections = await firebase.firestore().collection( 'users' ).get()
     const firebaseUsers: { id: number, token: string }[] = []
 
-    collections.forEach( user => {
-      if ( user.get( 'id' ) )
-        firebaseUsers.push( { id: user.get( 'id' ), token: user.get( 'token' ) } )
-    } )
+    collections.forEach( user => firebaseUsers.push( user.data() as any ) )
 
     const users = await connection( 'users' )
       .innerJoin( 'favorite_programs', 'favorite_programs.user', 'users.id' )
@@ -78,7 +75,7 @@ const createJobFromEntry = ( program: NormalizedProgram, day: string, time: stri
       .whereIn( 'users.id', firebaseUsers.map( user => user.id ) )
 
     const tokens = firebaseUsers
-      .filter( fuser => users.some( user => fuser.id === user.id ) )
+      .filter( fuser => users.some( user => fuser.id === user.id || fuser === null ) )
       .map( fuser => fuser.token )
 
     const response = await firebase.messaging().sendToDevice( tokens, {
@@ -168,4 +165,4 @@ const refreshProgramSchedule = async () => {
 
 export default refreshProgramSchedule
 
-if ( IS_DEVELOPER_ENVIRONMENT ) refreshProgramSchedule()
+if ( !IS_DEVELOPER_ENVIRONMENT ) refreshProgramSchedule()
