@@ -7,10 +7,13 @@ import connection from '../../src/helpers/connection'
 import Maven from '../../src/helpers/maven'
 import Dir from '../../src/models/Dir'
 import File from '../../src/models/File'
+import sendNotification from '../../src/tools/sendNotification'
 
 const args = yargs.argv as any
 
-const year = args.year ?? new Date().getFullYear();
+const year = args.year ?? new Date().getFullYear()
+
+const disable = args.noNotification;
 
 ( async () => {
 
@@ -20,7 +23,9 @@ const year = args.year ?? new Date().getFullYear();
     output: string
     ed: string
   }>( async ( resolve, reject ) => {
-    const format = `[DOWNLOAD][${index+1}/${count}] ${edition.ed.replace( /,$/, '' )} | {bar} {percentage}% || pages: {value}/{total} || ETA: {eta}s`
+    const format =
+      `[DOWNLOAD][${index+1}/${count}] ${edition.ed.replace( /,$/, '' )}` +
+      ' | {bar} {percentage}% || pages: {value}/{total} || ETA: {eta}s'
     const progress = new cliProgress.SingleBar(
       { format },
       cliProgress.Presets.shades_classic )
@@ -70,13 +75,34 @@ const year = args.year ?? new Date().getFullYear();
         
         if ( results.length ) console.log( 'file already in database' )
         else {
+          const screening_date = Times.Date.from( 'd/m/Y H:i:s', `${edition.data} 12:00:00` )
           await connection( 'newspaper_editions' )
             .insert( {
               ed_maven_number: info.ed,
               png_url: edition.info.CapaEdicao,
               pdf_url: info.url,
               pdf_file_path: info.output,
-	      screening_date: Times.Date.from( 'd/m/Y H:i:s', `${edition.data} 12:00:00` )
+              screening_date,
+            } ).then( () => {
+              if ( disable ) return Promise.resolve()
+              console.log( 'send notification' )
+              return connection( 'users' )
+                .column( 'users.id' )
+                .innerJoin( 'users_metas', 'users_metas.user', 'users.id' )
+                .where( 'users_metas.key', 'newspapers' )
+                .where( clause => {
+                  clause.where( 'users_metas.value', 'true' )
+                  clause.orWhere( 'users_metas.value', '1' )
+                } ).then( usersIds => {
+                  const ids = usersIds.map( user => user.id )
+                  return sendNotification( {
+                    filter: ( user ) => ids.includes( user.id ),
+                    notification: {
+                      title: 'Jornal',
+                      body: `Edição ${screening_date.format( 'd/m/Y' )} lançada`
+                    }
+                  } ).then( () => Promise.resolve() )
+                } )
             } )
           console.log( 'save edition in database' )
         }
@@ -87,5 +113,5 @@ const year = args.year ?? new Date().getFullYear();
       console.log( 'error in download file ' + e )
     }
   }
-  connection.destroy()
+  process.exit()
 } )()

@@ -1,17 +1,16 @@
 import connection from './helpers/connection'
 
 ( async () => {
-  await connection( 'polls' ).insert( {
-    text: 'Teste para Grande Florianópolis',
-    location: 'grande-florianopolis'
-  } )
-  await connection( 'polls' ).insert( {
-    text: 'Teste para Blumenau e região',
-    location: 'blumenau-e-regiao"'
-  } )
-  await connection( 'polls' ).insert( {
-    text: 'Teste para Joinville e região',
-    location: 'norte'
-  } )
-  connection.destroy()
+  const users = await connection( 'users' )
+    .column( 'users.id' )
+    .innerJoin( 'users_metas', 'users_metas.user', 'users.id' )
+    .where( 'users_metas.key', 'newspapers' )
+    .where( clause => {
+      clause.where( 'users_metas.value', 'true' )
+      clause.orWhere( 'users_metas.value', '1' )
+    } )
+
+  console.log( users )
+
+  process.exit()
 } )()
