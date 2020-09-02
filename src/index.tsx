@@ -38,7 +38,6 @@ app.set( 'port', args.port ?? 80 )
 
 app.use( morgan( app.get( 'log type' ), { stream } ) )
 
-
 app.use( bodyparser.urlencoded( { extended: true } ) )
 app.use( bodyparser.json( { limit: '100mb' } ) )
 
@@ -50,9 +49,10 @@ app.listen( app.get( 'port' ), () => {
     .then( () => {
       console.log( `running server in port ${app.get( 'port' )} usign envoriment mode ${app.get( 'environment' )}` )
     } )
-    .catch( () => {
-      console.error( 'failed to configure database' )
-      process.exit( 1 )
+    .catch( ( reason ) => {
+      console.error( 'Warning: failed to configure database' )
+      console.error( 'Warning:', reason.message )
+      console.log( `running server in port ${app.get( 'port' )} usign envoriment mode ${app.get( 'environment' )}` )
     } )
 } )
 
