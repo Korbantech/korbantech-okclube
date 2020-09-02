@@ -153,7 +153,10 @@ polls.get( '/polls', async ( req, res ) => {
   if ( !excluded ) query.whereNull( 'deleted_at' )
   else if ( excluded === 'only' ) query.whereNotNull( 'deleted_at' )
 
-  if ( program ) query.where( 'program', parseInt( program, 10 ) )
+  if ( program && restrict ) query.where( 'program', parseInt( program, 10 ) )
+  else if ( program ) query.where( clause => {
+    clause.where( 'program', program ).orWhereNull( 'program' )
+  } )
   if ( location && restrict ) query.where( 'location', location )
   else if ( location ) query.where( clause => {
     clause.where( 'location', location ).orWhereNull( 'location' )
