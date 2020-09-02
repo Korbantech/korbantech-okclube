@@ -1,16 +1,21 @@
-import connection from './helpers/connection'
+import sendNotification from './tools/sendNotification'
 
 ( async () => {
-  const users = await connection( 'users' )
-    .column( 'users.id' )
-    .innerJoin( 'users_metas', 'users_metas.user', 'users.id' )
-    .where( 'users_metas.key', 'newspapers' )
-    .where( clause => {
-      clause.where( 'users_metas.value', 'true' )
-      clause.orWhere( 'users_metas.value', '1' )
-    } )
+  const response = await sendNotification( {
+    filter: user => user.id === 1,
+    notification: {
+      title: 'Teste Notificação',
+      body: 'Teste'
+    }
+  } )
 
-  console.log( users )
+  response.forEach( result => {
+    result.results.forEach( result => {
+      if ( result.error ) console.log(
+        `(${result.error.code})\n${result.error.message}`
+      )
+    } )
+  } )
 
   process.exit()
 } )()
