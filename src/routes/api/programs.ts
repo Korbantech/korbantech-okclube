@@ -10,7 +10,7 @@ const programs = Express.Router()
 
 programs.get( '/programs',
   cacheHandler(
-    2 * 60 * 60 * 1000,
+    1 * 60 * 60 * 1000,
     ( data, res ) => res.json( JSON.parse( data ) ),
     ( req ) => `programs_to_${req.query?.user?.toString()}`
   ),
@@ -54,7 +54,11 @@ programs.get( '/programs',
 programs.post( '/programs/favorite', async ( req, res ) => {
   if ( !req.body.user || !req.body.program ) return res.status( 422 ).json()
 
-  memoryCache.del( `programs_to_${req.body.user}` )
+  memoryCache.keys().filter( key => {
+    if ( typeof key === 'string' )
+      if ( key.startsWith( `programs_to_${req.body.user}` ) ) return true
+    return false
+  } ).forEach( key => memoryCache.del( key ) )
 
   await connection( 'favorite_programs' )
     .insert( req.body )
