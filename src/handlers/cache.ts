@@ -11,13 +11,14 @@ const defaultCacheHandleMiddleware: CacheHandlerMiddleware =
 const cacheHandler = (
   duration: number,
   middle: CacheHandlerMiddleware = defaultCacheHandleMiddleware,
-  uniqueKey: string | null | ( ( req: Express.Request ) => string ) = null
+  prefix: string | null | ( ( req: Express.Request ) => string ) = null
 ): Express.Handler => ( req, res, next ) => {
-  const key = uniqueKey
-    ? typeof uniqueKey === 'function'
-      ? uniqueKey( req )
-      : uniqueKey
-    : `__express__${req.originalUrl || req.url}`
+  const realKey = `__express__${req.originalUrl || req.url}`
+  const key = prefix
+    ? typeof prefix === 'function'
+      ? `${prefix( req )}${realKey}`
+      : `${prefix}${realKey}`
+    : realKey
   const data = memoryCache.get( key )
 
   if ( data ) return middle( data, res, req )
