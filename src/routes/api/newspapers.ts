@@ -9,7 +9,7 @@ const newspapers = Express.Router()
 const route = newspapers.route( '/newspapers' )
 
 route.get(
-  cacheHandler( 30 * 60 * 60 * 1000, ( data, res ) => res.json( JSON.parse( data ) ) ),
+  cacheHandler( 1 * 60 * 60 * 1000, ( data, res ) => res.json( JSON.parse( data ) ) ),
   async ( req, res ) => {
     const limit = parseInt( req.query?.per?.toString() || '30' )
     const page = parseInt( req.query?.page?.toString() || '0' )
