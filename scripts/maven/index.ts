@@ -34,7 +34,7 @@ const disable = args.noNotification;
     try {
       const ed = edition.ed.replace( /,$/, '' )
       const output =  path.join( folder, `${ed}.pdf` )
-      const url = `http://dashboard.app.ndmais.com.br/public/magazines/${ed}.pdf`
+      const url = `http://d38iurctu47dce.cloudfront.net/${ed}.pdf`
       let pagesCount: number
       if ( await File.exists( output ) ) {
         progress.increment( 20 )
