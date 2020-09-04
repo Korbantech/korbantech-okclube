@@ -128,7 +128,7 @@ const createJobFromEntry = ( program: NormalizedProgram, day: string, time: stri
             ${response.results.map( result => `
               <tr>
                 <td>
-                  [${result.error.code}]${result.error.message}
+                  [${result.error?.code}]${result.error?.message}
                 </td>
               </tr>
             ` ).join( ' ' )}
