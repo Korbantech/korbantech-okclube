@@ -1,76 +1,33 @@
-import {
-  useDispatch as reactReduxUseDispatch,
-  useSelector as reactReduxUseSelector,
-  useStore as reactReduxUseStore
-} from 'react-redux'
+// @ts-ignore
+import mainReducer from '@reducers/index'
+import Redux, { createStore, applyMiddleware } from 'redux'
+import logger from 'redux-logger'
 
-import Redux, { createStore } from 'redux'
+const userSessionSave = localStorage.getItem( 'user-session-save' )
 
-import ifBrowser from '../helpers/ifBrowser'
+const user = userSessionSave ? JSON.parse( userSessionSave ) : null
 
-export const useDispatch: Store.UseDispatch = reactReduxUseDispatch
-export const useSelector: Store.UseSelector = reactReduxUseSelector
-export const useStore: Store.UseStore = reactReduxUseStore
+const initialState: store.State = { user }
 
-declare module 'redux' {
-  export function combineReducers( subs: {
-    [S in keyof Store.State]?: Store.SubReducer<S>
-  } ): Store.Reducer
-}
-
-const Store = ifBrowser(
-  () => {
-    // @ts-ignore
-    const state = window.__PRELOADED_STATE__
-    // @ts-ignore
-    delete window.__PRELOADED_STATE__
-  
-    const store = createStore<Store.State, Store.Action, unknown, unknown>( state => state || {}, state )
-
-    return Object.assign( store, { initialState: state } )
-  },
-  () => {
-
-    const store = createStore<Store.State, Store.Action, unknown, unknown>( state => state || {}, {} )
-
-    return Object.assign( store, { initialState: {} } )
-  }
+const store: Redux.Store<store.State, store.Action> = createStore<store.State, store.Action, unknown, unknown>(
+  mainReducer,
+  initialState,
+  applyMiddleware( logger )
 )
 
-export interface StoreState {}
-export interface StoreActions {}
-
-namespace Store {
-
-  export interface UseSelector {
-    <S>( selector: ( state: State ) => S, checker: ( old: S, newer: S ) => boolean ): S
-  }
-  export interface UseDispatch {
-    (): Dispatch
-  }
-  export interface UseStore {
-    (): Interface
-  }
-
-  export interface Interface extends Redux.Store<State, Action> {}
-  export interface State extends StoreState {}
-  export interface Actions extends StoreActions {}
-
-  export interface Action<A extends keyof Actions = keyof Actions>
-    extends Redux.Action<A> {
-      data: Actions[A]
+namespace store {
+  export namespace State {
+    export interface User {
+      email: string
+      password: string // temporary password
     }
-
-  export interface Dispatch<A extends keyof Actions = keyof Actions>
-    extends Redux.Dispatch<Actions[A]> {}
-
-  export interface Reducer<A extends keyof Actions = keyof Actions>
-    extends Redux.Reducer<State, Action<A>> {}
-
-  export interface SubReducer<S extends keyof State, A extends keyof Actions = keyof Actions>
-    extends Redux.Reducer<State[S], Action<A>> {}
-
-  export interface ActionCreator extends Redux.ActionCreator<Actions> {}
+  }
+  export interface State {
+    user?: State.User | null
+  }
+  export interface Action extends Redux.Action<'INSEGURE_MERGE_STATE'> { data: any }
+  export interface Dispatch extends Redux.Dispatch<Action> {}
+  export interface Reducer extends Redux.Reducer<State, Action> {}
 }
 
-export default Store
+export = store

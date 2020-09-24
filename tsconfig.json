@@ -1,18 +1,33 @@
 {
   "compilerOptions": {
+    "incremental": true,
     "target": "ESNext",
+    "module": "CommonJS",
     "lib": [ "ESNext", "DOM" ],
-    "allowSyntheticDefaultImports": true,
-    "moduleResolution": "Node",
-    "esModuleInterop": true,
-    "resolveJsonModule": true,
     "jsx": "react",
-    "plugins": [ {
-      "transform": "typescript-plugin-styled-components",
-      "type": "config",
-
-      "ssr": true,
-      "displayName": false
-    } ]
+    "strict": true,
+    "moduleResolution": "node",
+    "typeRoots": [ "./node_modules/@types", "./src/typings" ],
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "pretty": true,
+    "baseUrl": ".",
+    "resolveJsonModule": true,
+    "paths": {
+      "@app/*": [ "src/app/*" ],
+      "@components/*": [ "src/components/*" ],
+      "@hooks/*": [ "src/hooks/*" ],
+      "@pages/*": [ "src/pages/*" ],
+      "@constants/*": [ "src/constants/*" ],
+      "@handlers/*": [ "src/handlers/*" ],
+      "@helpers/*": [ "src/helpers/*" ],
+      "@models/*": [ "src/models/*" ],
+      "@routes/*": [ "src/routes/*" ],
+      "@tools/*": [ "src/tools/*" ],
+      "@schemas/*": [ "src/schemas/*" ],
+      "@reducers/*": [ "src/reducers/*" ],
+      "@store/*": [ "src/store/*" ],
+      "@root/*": [ "src/*" ],
+    }
   }
 }

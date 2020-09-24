@@ -26,7 +26,7 @@ class Dir {
       fs.mkdtemp( path.join( os.tmpdir(), dirname ), ( err, folder ) => err ? reject( err ) : resolve( folder ) )
     } )
 
-  private files: ( Dir | File )[]
+  private files!: ( Dir | File )[]
 
   private info: path.ParsedPath
 

@@ -14,7 +14,7 @@ namespace Maven {
       const response = await api.get<Magazine.Response>( '', { params: { ano: year } } )
       const clients = response.data.app.Cliente
       const client = clients.shift()
-      const magazines = client.Revista.map( magazine => ( {
+      const magazines = client?.Revista.map( magazine => ( {
         ...magazine.$,
         editions: magazine?.Edicao?.map( edition => ( {
           ...edition.$,
@@ -25,7 +25,7 @@ namespace Maven {
             linkBrowser: edition.linkBrowser,
           }
         } ) ) ?? []
-      } ) )
+      } ) ) ?? []
       const data = magazines
       return Promise.resolve( { ...response, data } )
     } catch ( e ) { return Promise.reject( e ) }
@@ -33,7 +33,7 @@ namespace Maven {
   export const editions = async ( year?: number ) => {
     try {
       const response = await magazines( year )
-      const data = response.data.shift().editions
+      const data = response.data.shift()?.editions
       return Promise.resolve( { ...response, data } )
     } catch ( e ) { return Promise.reject( e ) }
   }
@@ -42,11 +42,14 @@ namespace Maven {
       const response = await api.get<Edition.Response>( 'http://v4.maven.com.br/app/v3.jsp', { params: { ed } } )
       const clients = response.data.app.Cliente
       const client = clients.shift()
+      if ( !client ) throw new Error()
       const magazines = client.Revista
       const magazine = magazines.shift()
+      if ( !magazine ) throw new Error()
       const editions = magazine.Edicao
       const edition = editions.shift()
-      const data = edition.Paginas.shift().Pagina.map( page => page.$.pdf )
+      if ( !edition ) throw new Error()
+      const data = edition.Paginas.shift()?.Pagina.map( page => page.$.pdf ) ?? []
       return Promise.resolve( { ...response, data } )
     } catch ( e ) { return Promise.reject( e ) }
   }

@@ -23,29 +23,34 @@ route.route( '/schedule-programs' )
         .map( ( [ slug, info ] ) => {
           return [ slug, Object.fromEntries(
             Object.entries( info.schedule )
-              .map( ( [ day, job ] ) => [ day, { 
+              .map( ( [ day, job ] ) => [ day, job ? { 
                 cron: job.cron,
                 next: job.nextInvocation(),
                 locale: new Date( job.nextInvocation() ).toLocaleString()
-              } ] )
+              } : undefined ] )
           ) ]
         } )
     )
     res.json( result )
   } )
 
+type WeekDays = keyof typeof scheduleStorage[string]['schedule']
+
 route.route( '/schedule-programs/:day' )
   .get( ( req, res, next ) => {
-    const day = req.params.day
+    const day = req.params.day as WeekDays
     if ( !days.includes( day ) ) return next()
     const result = Object.fromEntries(
       Object.entries( scheduleStorage )
-        .filter( ( [ , info ] ) => info.schedule[day] )
-        .map( ( [ slug, info ] ) => [ slug, {
-          cron: info.schedule[day].cron,
-          next: info.schedule[day].nextInvocation(),
-          locale: new Date( info.schedule[day].nextInvocation() ).toLocaleString(),
-        } ] )
+        .filter( ( data ) => !!data[1].schedule[day] )
+        .map( ( [ slug, info ] ) => {
+          const job = info.schedule[day]
+          return [ slug, job ? {
+            cron: job.cron,
+            next: job.nextInvocation(),
+            locale: new Date( job.nextInvocation() ).toLocaleString(),
+          } : undefined ]
+        } )
     )
     return res.json( result )
   } )
@@ -56,6 +61,7 @@ route.route( '/schedule-programs/:slug' )
     if ( !scheduleStorage[slug] ) return res.status( 404 ).json()
     const result = Object.fromEntries(
       Object.entries( scheduleStorage[slug].schedule )
+        .filter( ( data ): data is [ string, CustomJob ] => !!data[1] )
         .map( ( [ day, job ] ) => [ day, {
           cron: job.cron,
           next: job.nextInvocation(),
@@ -69,9 +75,10 @@ route.route( '/schedule-programs/:slug' )
 route.route( '/schedule-programs/:slug/:day' )
   .get( ( req, res ) => {
     const slug = req.params.slug
-    const day = req.params.day
-    if ( !scheduleStorage[slug] || !scheduleStorage[slug].schedule[day] ) return res.status( 404 ).json()
-    const job = scheduleStorage[slug].schedule[day]
+    const day = req.params.day as keyof typeof program.schedule
+    const program = scheduleStorage[slug]
+    const job = program.schedule[day]
+    if ( !program || !job ) return res.status( 404 ).json()
     const cron = job.cron
     const next = job.nextInvocation()
     const locale = new Date( job.nextInvocation() ).toLocaleString()
@@ -79,14 +86,15 @@ route.route( '/schedule-programs/:slug/:day' )
   } )
   .post( ( req, res ) => {
     const slug = req.params.slug
-    const day = req.params.day
+    const day = req.params.day as keyof typeof program.schedule
     const info = req.body
-    if ( !scheduleStorage[slug] || !scheduleStorage[slug].schedule[day] ) return res.status( 404 ).json()
-    const oldJob: CustomJob = scheduleStorage[slug].schedule[day]
+    const program = scheduleStorage[slug]
+    const oldJob = scheduleStorage[slug].schedule[day]
+    if ( !program || !oldJob ) return res.status( 404 ).json()
     oldJob.cancel()
     const job = schedule.scheduleJob( oldJob.name, info, oldJob.caller )
-    Object.assign( job, { caller: oldJob.caller, cron: info } )
-    scheduleStorage[slug].schedule[day] = job
+    const customJob = Object.assign( job, { caller: oldJob.caller, cron: info } )
+    scheduleStorage[slug].schedule[day] = customJob
   } )
 
 export default route

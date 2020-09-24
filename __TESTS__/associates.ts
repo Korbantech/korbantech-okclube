@@ -59,4 +59,4 @@ import connection from '../src/helpers/connection'
     category: row.benefit_category,
     favorite: row.favorite !== undefined ? Boolean( row.favorite ) : undefined
   } ) ) )
-} )( {} as any, { json: ( ...args ) => { console.log( args ) } } as any )
+} )( {} as any, { json: ( ...args: any[] ) => { console.log( args ) } } as any )

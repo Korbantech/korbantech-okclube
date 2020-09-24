@@ -45,6 +45,42 @@ polls.post( '/polls/:id/comments', async ( req, res ) => {
   return res.json()
 } )
 
+polls.route( '/polls/:id/details' )
+  .get( async ( req, res ) => {
+    connection( 'polls' )
+      .select( connection.raw( 'COUNT( polls_comments.poll ) AS comments_count' ) )
+      .select( connection.raw(
+        `JSON_OBJECTAGG(
+          CASE
+            WHEN responses.key IS NULL THEN 'no'
+            ELSE responses.key
+          END,
+          IFNULL( responses.value, 0 )
+        ) AS responses`
+      ) )
+      .leftJoin(
+        connection( 'polls_responses' )
+          .select( 'polls_responses.poll' )
+          .select( connection.raw( 'polls_responses.response AS `key`' ) )
+          .select( connection.raw( 'COUNT( polls_responses.user ) AS `value`' ) )
+          .groupBy( 'polls_responses.poll', 'polls_responses.response' )
+          .as( 'responses' ),
+        'responses.poll', 'polls.id' )
+      .leftJoin( 'polls_comments', 'polls_comments.poll', 'polls.id' )
+      .groupBy( 'polls.id' )
+      .where( 'polls.id', req.params.id )
+      .first()
+      .then( data => {
+        console.log( data )
+        return data
+      } )
+      .then( data => {
+        data.responses = JSON.parse( data.responses )
+        return data
+      } )
+      .then( res.json.bind( res ) )
+  } )
+
 polls.route( '/polls/:id' )
   .get( async ( req, res ) => {
     if ( !req.params.id ) return res.status( 422 ).json()

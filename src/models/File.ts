@@ -3,7 +3,7 @@ import path from 'path'
 
 class File {
   private info: path.ParsedPath
-  private content: Buffer
+  private content!: Buffer
   private status = File.Status.NOT_LOADED
   private isAscii = true
 

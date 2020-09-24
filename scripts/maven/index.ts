@@ -35,7 +35,7 @@ const disable = args.noNotification;
       const ed = edition.ed.replace( /,$/, '' )
       const output =  path.join( folder, `${ed}.pdf` )
       const url = `http://d38iurctu47dce.cloudfront.net/${ed}.pdf`
-      let pagesCount: number
+      let pagesCount: number = 20
       if ( await File.exists( output ) ) {
         progress.increment( 20 )
         progress.stop()
@@ -62,7 +62,7 @@ const disable = args.noNotification;
 
   if ( !await File.exists( folder ) ) await Dir.make( folder, { recursive: true } )
 
-  const { data: editions } = await Maven.editions( year )
+  const { data: editions = [] } = await Maven.editions( year )
 
   console.log( `download ${editions.length} editions` )
 

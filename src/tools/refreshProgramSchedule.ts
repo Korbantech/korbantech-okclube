@@ -51,7 +51,7 @@ const normalizePrograms = ( programs: any[] ): NormalizedProgram[] =>
       id: program.ID,
       name: program.ID === 183155 ? 'Balanço Geral' : program.name,
       schedule: Object.fromEntries(
-        Object.entries( program.schedule )
+        Object.entries<any>( program.schedule )
           .map( ( [ key, value ] ) => [ key.replace( /^schedule_/, '' ), value[0] ] )
       )
     } ) )
@@ -146,7 +146,7 @@ const refreshProgramSchedule = async () => {
   Object.entries( storage ).forEach( ( [ slug, program ] ) => {
     Object.values( program.schedule )
       .forEach( schedule => {
-        Object.values( schedule ).forEach( job => job.cancel() )
+        Object.values( schedule || {} ).forEach( job => job.cancel() )
       } )
     delete storage[slug]
   } )
@@ -156,8 +156,8 @@ const refreshProgramSchedule = async () => {
     storage[program.slug] = {
       schedule: Object.fromEntries(
         Object.entries( program.schedule )
-          .filter( ( [ day ] ) => days.includes( day ) )
-          .map( ( [ day, time ] ) => createJobFromEntry( program, day, time ) )
+          .filter( ( [ day, time ] ) => days.includes( day ) && time )
+          .map( ( [ day, time ] ) => createJobFromEntry( program, day, time as string ) )
       ),
     }
   } )

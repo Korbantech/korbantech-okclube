@@ -45,7 +45,7 @@ import connection from '../src/helpers/connection'
       benefitsCategories[categoryName] = {
         id: ( await connection( 'benefits_categories' )
           .insert( { name: associatedInfo.categoria_beneficio.trim() } ) )
-          .pop()
+          .pop() as number
       }
 
     if ( !benefitsCategories[categoryName]?.id ) throw new Error( '' )
