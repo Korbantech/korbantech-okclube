@@ -40,8 +40,8 @@ app.set( 'port', args.port ?? 80 )
 
 app.use( morgan( app.get( 'log type' ), IS_PRODUCTION_ENVIRONMENT ? { stream } : undefined ) )
 app.use( ( req, res, next ) => {
-  console.log( req.protocol, req.headers )
-  if ( req.protocol === 'http' && IS_PRODUCTION_ENVIRONMENT )
+  // console.log( req.protocol, req.headers )
+  if ( req.protocol === 'http' && req.headers['x-forwarded-proto'] !== 'https' && IS_PRODUCTION_ENVIRONMENT )
     return res.redirect( 308, `https://${req.hostname}${req.originalUrl}` )
   else next()
 } )
