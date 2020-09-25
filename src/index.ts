@@ -39,6 +39,11 @@ app.set( 'environment', IS_PRODUCTION_ENVIRONMENT ? 'production' : 'development'
 app.set( 'port', args.port ?? 80 )
 
 app.use( morgan( app.get( 'log type' ), IS_PRODUCTION_ENVIRONMENT ? { stream } : undefined ) )
+app.use( ( req, res, next ) => {
+  if ( req.protocol === 'http' && IS_PRODUCTION_ENVIRONMENT )
+    res.redirect( `https://${req.hostname}/${req.originalUrl}`, 308 )
+  else next()
+} )
 app.use( cors() )
 app.use( bodyparser.urlencoded( { extended: true } ) )
 app.use( bodyparser.json( { limit: '100mb' } ) )
