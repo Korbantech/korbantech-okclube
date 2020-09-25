@@ -14,6 +14,13 @@ interface Config extends webpack.Configuration {
   devServer?: webpackDevServer.Configuration
 }
 
+const htmlWebpackPluginOptions: any = {
+  template: path.resolve( 'src', 'views', 'index.pug' ),
+}
+
+if ( process.env.NODE_ENV === 'production' )
+  htmlWebpackPluginOptions.filename = path.resolve( 'views', 'index.html' )
+
 const config: Config = {
   entry: path.resolve( 'src', 'index.web.tsx' ),
   output: {
@@ -33,10 +40,7 @@ const config: Config = {
       loader: 'pug-loader'
     } ]
   },
-  plugins: [ new HtmlWebpackPlugin( {
-    template: path.resolve( 'src', 'views', 'index.pug' ),
-    filename: process.env.NODE_ENV === 'production' ? path.resolve( 'views', 'index.html' ) : undefined,
-  } ), new SourceMapDevToolPlugin() ],
+  plugins: [ new HtmlWebpackPlugin( htmlWebpackPluginOptions ), new SourceMapDevToolPlugin() ],
   resolve: {
     extensions: [ '.tsx', '.ts', '.json', '.js', '.jsx' ],
     alias
