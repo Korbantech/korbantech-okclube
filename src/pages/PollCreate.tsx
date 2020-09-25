@@ -10,11 +10,16 @@ import styled from 'styled-components'
 
 const PollCreate = () => {
   const programsRequest = useRequest<any[]>( '/programs' )
+  const locationRequest = useRequest<any[]>( 'https://ndmais.com.br/wp-json/ndmais/v1/content/filters/location/' )
+
+  console.log( locationRequest )
+  
   const history = useHistory()
 
   useEffect( () => {
     if ( !programsRequest.init ) programsRequest.send()
-  }, [ programsRequest ] )
+    if ( !locationRequest.init ) locationRequest.send()
+  }, [ programsRequest, locationRequest ] )
 
   const onSubmit = useCallback( ( undata: any ) => {
     const data = Object.fromEntries(
@@ -46,6 +51,11 @@ const PollCreate = () => {
           Local
           <CustomSelect name='location'>
             <option value={'undefined'}>Nenhuma</option>
+            {locationRequest.data?.map( location => 
+              <option key={`location-option-${location.slug}`} value={location.slug}>
+                {location.name}
+              </option>
+            )}
           </CustomSelect>
         </Label>
         <Button>Salvar</Button>
@@ -100,7 +110,7 @@ const CustomForm = styled( Form )`
   border-radius: 5px;
   padding: 10px 15px;
   grid-gap: 30px;
-}`
+`
 
 const CustomTextArea = styled( TextArea )`
   grid-area: text;

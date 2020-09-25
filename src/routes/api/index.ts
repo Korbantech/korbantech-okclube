@@ -3,6 +3,7 @@ import Express from 'express'
 import fs from 'fs'
 
 import connection from '../../helpers/connection'
+import associates from './associates'
 import internals from './internals'
 import mail from './mail'
 import news from './news'
@@ -28,6 +29,7 @@ api.use( programs )
 api.use( polls )
 api.use( mail )
 api.use( recover )
+api.use( associates )
 
 api.get( '/check/:id', async ( req, res ) => {
 

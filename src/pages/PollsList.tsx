@@ -20,9 +20,7 @@ const PollsList = () => {
       <List
         data={pagination.list}
         render={ poll => <PollItemList poll={poll} /> }
-        onReachedEnd={ () => {
-          console.log( 'end' )
-        } }
+        onReachedEnd={ () => { if ( !pagination.end ) pagination.load() } }
       />
     </Container>
   )
@@ -30,7 +28,6 @@ const PollsList = () => {
 
 const Container = styled.div`
   width: 100%;
-  height: 90%;
   display: flex;
   flex-direction: column;
 `

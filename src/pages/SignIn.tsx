@@ -1,3 +1,4 @@
+/* eslint-disable no-alert */
 import React, { useCallback, ComponentType } from 'react'
 import { useDispatch } from 'react-redux'
 import { Redirect } from 'react-router-dom'

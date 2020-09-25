@@ -48,6 +48,8 @@ app.use( vhost( /^api\..*/, api ) )
 
 app.use( vhost( /^dashboard\..*/, dashboard ) )
 
+app.use( '/public', Express.static( 'public' ) )
+
 app.listen( app.get( 'port' ), () => {
   connection.raw( 'SET SESSION sql_mode=( SELECT REPLACE( @@sql_mode, \'ONLY_FULL_GROUP_BY\', \'\' ) );' )
     .then( () => {

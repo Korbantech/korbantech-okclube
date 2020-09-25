@@ -16,20 +16,22 @@ const usePagination = <T>( url: string, {
   instace = api,
   limit = 30,
   limitParamKey = 'per-page',
-  pageParamKey = 'page'
+  pageParamKey = 'page',
+  initialPageNumber = 0,
 }: usePagination.Options<T> = {} ) => {
   const [ loading, setLoading ] = useState( false )
   const [ firstLoadDone, setFirstLoadDone ] = useState( false )
   const [ list, setList ] = useState<T[]>( [] )
   const [ end, setEnd ] = useState( false )
-  const [ page, setPage ] = useState( 0 )
+  const [ page, setPage ] = useState( initialPageNumber )
   const [ error, setError ] = useState<null | AxiosError>( null )
 
   const reset = useCallback( () => {
-    setFirstLoadDone( false )
+    setPage( initialPageNumber )
     setEnd( false )
     setList( [] )
-  }, [] )
+    setFirstLoadDone( false )
+  }, [ initialPageNumber ] )
 
   useEffect( () => reset(), [ params, reset ] )
 
@@ -79,6 +81,7 @@ namespace usePagination {
     limitParamKey?: string
     pageParamKey?: string
     instace?: AxiosInstance
+    initialPageNumber?: number
   }
 }
 

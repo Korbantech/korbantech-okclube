@@ -6,6 +6,8 @@ import { BrowserRouter, Switch, Route } from 'react-router-dom'
 import AuthorizationRoute from '@components/AuthorizationRoute'
 import LateralMenu from '@components/LateralMenu'
 import PageContent from '@components/PageContent'
+import AssociatedCreate from '@pages/AssociatedCreate'
+import AssociatesList from '@pages/AssociatesList'
 import ComingSoon from '@pages/ComingSoon'
 import PollCreate from '@pages/PollCreate'
 import PollsList from '@pages/PollsList'
@@ -59,8 +61,8 @@ const Dashboard = () =>
         <Route exact path='/polls/create' component={PollCreate} />
         <Route exact path='/notifications' component={ComingSoon} />
         <Route exact path='/notifications/create' component={ComingSoon} />
-        <Route exact path='/associates' component={ComingSoon} />
-        <Route exact path='/associates/create' component={ComingSoon} />
+        <Route exact path='/associates' component={AssociatesList} />
+        <Route exact path='/associates/create' component={AssociatedCreate} />
       </Switch>
     </PageContent>
   </Grid>

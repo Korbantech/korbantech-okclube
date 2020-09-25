@@ -38,7 +38,7 @@ const PollItemList = ( { poll }: PollItemList.Props ) => {
       </InlinePoll>
       { open && 
         <AdditionalInformation>
-          {request.loading
+          {request.loading || !request.init
             ? <p>Carregando...</p>
             : 
             <div>

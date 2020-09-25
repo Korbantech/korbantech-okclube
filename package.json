@@ -8,7 +8,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "ts": "ts-node -r dotenv/config --files",
+    "ts": "ts-node -r module-alias/register -r dotenv/config --files",
     "webpack:start": "webpack-dev-server --config webpack.config.ts --mode development",
     "webpack:build": "webpack --config webpack.config.ts --mode production",
     "start:node": "yarn ts ./src/index.ts"
@@ -41,6 +41,7 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-icons": "^3.11.0",
+    "react-infinite-scroll-component": "^5.1.0",
     "react-redux": "^7.2.1",
     "react-router-dom": "^5.2.0",
     "redux": "^4.0.5",

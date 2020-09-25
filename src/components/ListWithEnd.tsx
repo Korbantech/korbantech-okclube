@@ -1,5 +1,5 @@
 /* eslint-disable array-element-newline */
-import React, { ReactNode, ComponentType, useCallback, useState, useMemo, useRef, useEffect, memo } from 'react'
+import React, { ReactNode, ComponentType, useCallback, useState, useMemo, useRef, useEffect, memo, PropsWithChildren } from 'react'
 
 import styled from 'styled-components'
 
@@ -17,6 +17,7 @@ const ListWithEnd = <T extends any>( {
   itemAs,
   listProps = {},
   itemProps = {},
+  componentsInListIndex,
   ...props
 }: ListWithEnd.Props<T> ) => {
   const [ height, setHeight ] = useState( 0 )
@@ -42,32 +43,52 @@ const ListWithEnd = <T extends any>( {
   useEffect( () => {
     if ( pointReachedEnd ) onReachedEnd?.()
   }, [ pointReachedEnd, onReachedEnd ] )
-  
-  const node = useMemo( () => 
-    <Container as={containerAs} {...props}>
-      { !!ListHeaderComponent && <ListHeaderComponent /> }
-      <MemoredList onScroll={onScroll} ref={ref} as={listAs} {...listProps}>
+
+  const listNode = useMemo( () => {
+    console.log( 'list node rendering' )
+    if ( !Array.isArray( listAs ) )
+      return (
+        <MemoredList as={listAs} {...listProps}>
+          {data.length ? data.map( ( item, index ) => 
+            <MemoredItem key={keyExtractor( item, index )} as={itemAs} {...itemProps}>
+              {render( item, index )}
+            </MemoredItem>
+          ) : !!ListEmptyComponent && <ListEmptyComponent /> }
+        </MemoredList>
+      )
+
+    if ( !listAs.length ) throw new Error( '' )
+
+    const List = listAs.reduce( ( LastNode, listAs, index ) => {
+      return ( { children }: PropsWithChildren<{}> ) =>
+        <LastNode>
+          <MemoredList as={listAs} {...listProps}>
+            { index === componentsInListIndex && !!ListHeaderComponent && <ListHeaderComponent /> }
+            {children}
+            { index === componentsInListIndex && !!ListFooterComponent && <ListFooterComponent /> }
+          </MemoredList>
+        </LastNode>
+    }, ( { children }: PropsWithChildren<{}> ) => <>{children}</> )
+
+    return (
+      <List>
         {data.length ? data.map( ( item, index ) => 
           <MemoredItem key={keyExtractor( item, index )} as={itemAs} {...itemProps}>
             {render( item, index )}
           </MemoredItem>
         ) : !!ListEmptyComponent && <ListEmptyComponent /> }
-      </MemoredList>
-      { !!ListFooterComponent && <ListFooterComponent /> }
+      </List>
+    )
+  }, [ data, itemAs, itemProps, listProps, listAs, render, keyExtractor,
+    ListEmptyComponent, ListHeaderComponent, ListFooterComponent, componentsInListIndex ] )
+  
+  const node = useMemo( () => 
+    <Container {...props} as={containerAs} onScroll={onScroll}  ref={ref}>
+      { !!ListHeaderComponent && componentsInListIndex === undefined && <ListHeaderComponent /> }
+      {listNode}
+      { !!ListFooterComponent && componentsInListIndex === undefined && <ListFooterComponent /> }
     </Container>
-  , [ onScroll,
-    keyExtractor,
-    ListEmptyComponent,
-    render,
-    data,
-    containerAs,
-    listAs,
-    itemAs,
-    ListHeaderComponent,
-    ListFooterComponent,
-    listProps,
-    itemProps,
-    props ] )
+  , [ listNode, onScroll, containerAs, ListHeaderComponent, ListFooterComponent, props, componentsInListIndex ] )
 
   return node
 }
@@ -81,12 +102,13 @@ namespace ListWithEnd {
     ListHeaderComponent?: ComponentType
     ListFooterComponent?: ComponentType
     containerAs?: keyof JSX.IntrinsicElements
+    listAs?: keyof JSX.IntrinsicElements | ( keyof JSX.IntrinsicElements )[]
+    itemAs?: keyof JSX.IntrinsicElements
     listProps?: ListProps
     itemProps?: ItemProps
-    listAs?: keyof JSX.IntrinsicElements
-    itemAs?: keyof JSX.IntrinsicElements
     keyExtractor?: ( item: T, index: number ) => string
     onReachedEnd?: () => void
+    componentsInListIndex?: number
   }
 }
 
@@ -104,6 +126,7 @@ const List = styled.ul`
   margin: 0;
   padding: 0;
   list-style: none;
+  width: 100%;
 `
 
 type ItemProps = typeof Item extends ComponentType<infer P> ? P : never

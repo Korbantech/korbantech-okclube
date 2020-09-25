@@ -18,8 +18,7 @@ const config: Config = {
   entry: path.resolve( 'src', 'index.web.tsx' ),
   output: {
     filename: 'main.bundle.js',
-    publicPath: '/public/',
-    path: path.resolve( 'dist' )
+    publicPath: false ? '/public/' : '/',
   },
   module: {
     rules: [ {
@@ -35,8 +34,7 @@ const config: Config = {
     } ]
   },
   plugins: [ new HtmlWebpackPlugin( {
-    template: path.resolve( 'src/views/index.pug' ),
-    filename: path.resolve( 'views/index.html' )
+    template: path.resolve( 'src/views/index.pug' )
   } ), new SourceMapDevToolPlugin() ],
   resolve: {
     extensions: [ '.tsx', '.ts', '.json', '.js', '.jsx' ],
