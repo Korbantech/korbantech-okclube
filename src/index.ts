@@ -40,8 +40,9 @@ app.set( 'port', args.port ?? 80 )
 
 app.use( morgan( app.get( 'log type' ), IS_PRODUCTION_ENVIRONMENT ? { stream } : undefined ) )
 app.use( ( req, res, next ) => {
+  res.render( 'index.pug' )
   if ( req.protocol === 'http' && IS_PRODUCTION_ENVIRONMENT )
-    res.redirect( `https://${req.hostname}/${req.originalUrl}`, 308 )
+    res.redirect( `https://${req.hostname}${req.originalUrl}`, 308 )
   else next()
 } )
 app.use( cors() )
