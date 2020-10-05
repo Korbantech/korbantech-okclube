@@ -48,6 +48,7 @@ polls.post( '/polls/:id/comments', async ( req, res ) => {
 polls.route( '/polls/:id/details' )
   .get( async ( req, res ) => {
     connection( 'polls' )
+      .select( 'polls.*' )
       .select( connection.raw( 'COUNT( polls_comments.poll ) AS comments_count' ) )
       .select( connection.raw(
         `JSON_OBJECTAGG(
@@ -160,6 +161,8 @@ polls.route( '/polls/:id' )
     await connection( 'polls' )
       .where( 'id', req.params.id )
       .update( { deleted_at: new Date() } )
+
+    res.json( { success: true } )
   } )
 
 polls.get( '/polls', async ( req, res ) => {

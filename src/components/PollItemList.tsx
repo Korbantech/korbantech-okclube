@@ -1,9 +1,13 @@
+/* eslint-disable no-alert */
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import { FaEdit, FaTrashAlt } from 'react-icons/fa'
+import { Link } from 'react-router-dom'
 
+import api from '@app/api'
 import useRequest from '@hooks/useRequest'
 import styled from 'styled-components'
 
-const PollItemList = ( { poll }: PollItemList.Props ) => {
+const PollItemList = ( { poll, reset }: PollItemList.Props ) => {
   const [ open, setOpen ] = useState( false )
   const request = useRequest<any>( `/polls/${poll.id}/details` )
 
@@ -34,7 +38,15 @@ const PollItemList = ( { poll }: PollItemList.Props ) => {
         <Text>
           {poll.text}
         </Text>
-        <ActionsContainer />
+        <CustomEditLink to={`/polls/${poll.id}`}>
+          <FaEdit />
+        </CustomEditLink>
+        <FaTrashAlt style={ { margin: '5px' } } onClick={ ( event ) => {
+          event.preventDefault()
+          if ( confirm( 'Deseja mesmo excluir a enquete?' ) )
+            api.delete( `/polls/${poll.id}` )
+              .then( () => reset() )
+        } } />
       </InlinePoll>
       { open && 
         <AdditionalInformation>
@@ -61,19 +73,26 @@ const Container = styled.div`
   cursor: pointer;
 `
 
+const CustomEditLink = styled( Link )`
+  display: flex;
+  margin-left: auto;
+  color: black;
+`
+
 const InlinePoll = styled.div`
   width: 100%;
+  display: flex;
+  align-items: center;
 `
 
 const Text = styled.div``
-
-const ActionsContainer = styled.div``
 
 const AdditionalInformation = styled.div``
 
 namespace PollItemList {
   export interface Props {
     poll: any
+    reset(): void
   }
 }
 

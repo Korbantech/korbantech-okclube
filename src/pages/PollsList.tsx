@@ -1,13 +1,18 @@
-import React from 'react'
+import React, { useCallback } from 'react'
+import ReactInfiniteScroll from 'react-infinite-scroll-component'
 import { Link } from 'react-router-dom'
 
-import ListWithEnd from '@components/ListWithEnd'
+import Loading from '@components/Loading'
 import PollItemList from '@components/PollItemList'
 import usePagination from '@hooks/usePagination'
 import styled from 'styled-components'
 
 const PollsList = () => {
   const pagination = usePagination<any>( '/polls' )
+
+  const next = useCallback( () => {
+    if ( !pagination.loading ) return pagination.load()
+  }, [ pagination ] )
 
   return (
     <Container>
@@ -17,11 +22,26 @@ const PollsList = () => {
           adicionar novo
         </CustomLink>
       </Row>
-      <List
-        data={pagination.list}
-        render={ poll => <PollItemList poll={poll} /> }
-        onReachedEnd={ () => { if ( !pagination.end ) pagination.load() } }
-      />
+      <Wrapper>
+        <Scroll id='associated-scrollable-list'>
+          <CustomInfiniteScroll
+            dataLength={pagination.list.length} //This is important field to render the next data
+            next={next}
+            hasMore={!pagination.end}
+            loader={(
+              <Loader>
+                <Loading size={50}/>
+                <h4>Carregando...</h4>
+              </Loader>
+            )}
+            scrollableTarget='associated-scrollable-list'
+          >
+            {pagination.list.map( poll =>
+              <PollItemList poll={poll} reset={pagination.reset} />
+            )}
+          </CustomInfiniteScroll>
+        </Scroll>
+      </Wrapper>
     </Container>
   )
 }
@@ -38,6 +58,24 @@ const Row = styled.div`
   align-items: baseline;
 `
 
+const Loader = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 0;
+`
+
+const Wrapper = styled.div`
+  background-color: white;
+  box-shadow: 0 0 5px 0 #00000040;
+  padding: 10px 0;
+  max-height: 95vh;
+  overflow: hidden;
+  border-radius: 5px;
+`
+
 const CustomLink = styled( Link )`
   margin: 0 10px;
   background-color: white;
@@ -48,10 +86,12 @@ const CustomLink = styled( Link )`
   padding: 5px 10px;
 `
 
-const List = styled( ListWithEnd )`
-  background-color: white;
-  box-shadow: 0 0 5px 0 #00000040;
-  border-radius: 5px;
+const CustomInfiniteScroll = styled( ReactInfiniteScroll )``
+
+const Scroll = styled.div`
+  overflow-y: scroll;
+  height: 91%;
+  ::-webkit-scrollbar { width: 0; }
 `
 
 namespace PollsList {}

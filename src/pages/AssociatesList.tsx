@@ -62,7 +62,9 @@ const AssociatesList = () => {
                   )}
                 </Addresses>
                 <Category>{associated.category}</Category>
-                <CustomFaEdit />
+                <FaEditLink to={`/associates/${associated.id}`}>
+                  <CustomFaEdit />
+                </FaEditLink>
                 <CustomFaTrashAlt onClick={ () => {
                   // eslint-disable-next-line no-alert
                   if ( confirm( 'Deseja mesmo excluir o associado?' ) )
@@ -136,6 +138,12 @@ const CustomFaEdit = styled( FaEdit )`
   cursor: pointer;
   display: flex;
   margin: auto;
+`
+
+const FaEditLink = styled( Link )`
+  display: flex;
+  margin: auto;
+  color: black;
 `
 
 const CustomFaTrashAlt = styled( FaTrashAlt )`

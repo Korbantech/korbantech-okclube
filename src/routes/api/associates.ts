@@ -25,6 +25,7 @@ associates.route( '/associates' )
         'benefits.title AS benefit_title',
         'benefits_categories.name AS benefit_category',
         'benefits.discount AS benefit_discount',
+        'benefits.description AS benefit_description',
         connection.raw( 'GROUP_CONCAT( DISTINCT associates_addresses.address SEPARATOR \'|\' ) AS address' ),
         connection.raw( 'GROUP_CONCAT( DISTINCT associates_phones.phone SEPARATOR \'|\' ) AS phones' ),
       )
@@ -172,6 +173,7 @@ associates.route( '/associates/:id' )
         'benefits.title AS benefit_title',
         'benefits_categories.name AS benefit_category',
         'benefits.discount AS benefit_discount',
+        'benefits.description AS benefit_description',
         connection.raw( 'GROUP_CONCAT( DISTINCT associates_addresses.address SEPARATOR \'|\' ) AS address' ),
         connection.raw( 'GROUP_CONCAT( DISTINCT associates_phones.phone SEPARATOR \'|\' ) AS phones' ),
       )
@@ -182,6 +184,14 @@ associates.route( '/associates/:id' )
       .groupBy( 'associates.id' )
       .where( 'associates.id', req.params.id )
       .first()
+      .then( row => ( {
+        ...row,
+        address: row.address?.split( '|' ) || [],
+        phones: row.phones?.split( '|' ) || [],
+        discount: row.benefit_discount,
+        category: row.benefit_category,
+        favorite: row.favorite !== undefined ? Boolean( row.favorite ) : undefined
+      } ) )
       .then( res.json.bind( res ) )
       .catch( next )
   } )
@@ -189,12 +199,12 @@ associates.route( '/associates/:id' )
   .patch( ( req, res, next ) => {
     let logo = null
     if ( req.body.logo?.match( /data:image\/(jpeg|png);base64/ ) ) {
-      const fileExtension = req.body.logo.replace( /data:image\/(jpeg|png);base64*/, '$1' )
+      const fileExtension = req.body.logo.replace( /data:image\/(jpeg|png);base64.*/, '$1' )
       const base64Image = req.body.logo.replace( /data:image\/(jpeg|png);base64/, '' )
       const dirpath = `public/associates/${req.params.id}`
       if ( !fs.existsSync( dirpath ) ) fs.mkdirSync( dirpath, { recursive: true } )
-      const fullpath = `public/associates/${req.params.id}/logo.${fileExtension}`
-      logo = `http://${req.hostname}/${fullpath}`
+      const fullpath = `${dirpath}/logo.${fileExtension}`
+      logo = `http://${req.hostname}:${req.socket.localPort}/${fullpath}`
       fs.writeFileSync( fullpath, base64Image, { encoding: 'base64' } )
     } else if ( req.body.logo ) logo = req.body.logo
 
@@ -221,9 +231,11 @@ associates.route( '/associates/:id' )
       if ( associated[key] === undefined ) delete associated[key]
     } )
 
-    const addresses: any[] = req.body.addresses
+    const addresses: any[] = req.body.addresses || []
 
-    const phones: any[] = req.body.phones
+    const phones: any[] = req.body.phones || []
+
+    console.log( { phones, addresses } )
 
     connection( 'associates' )
       .where( 'associates.id', req.params.id )
@@ -248,7 +260,7 @@ associates.route( '/associates/:id' )
 
         const addressesPromises = addresses.map( address => {
           if ( !address.id ) return connection( 'associates_addresses' )
-            .insert( address )
+            .insert( { ...address, associated: associated.id } )
             .then( () => void 0 )
 
           const id = address.id
@@ -270,7 +282,7 @@ associates.route( '/associates/:id' )
 
         const phonesPromises = phones.map( phone => {
           if ( !phone.id ) return connection( 'associates_phones' )
-            .insert( phone )
+            .insert( { ...phone, associated: associated.id } )
             .then( () => void 0 )
 
           const id = phone.id

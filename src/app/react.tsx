@@ -7,9 +7,11 @@ import AuthorizationRoute from '@components/AuthorizationRoute'
 import LateralMenu from '@components/LateralMenu'
 import PageContent from '@components/PageContent'
 import AssociatedCreate from '@pages/AssociatedCreate'
+import AssociatedEdit from '@pages/AssociatedEdit'
 import AssociatesList from '@pages/AssociatesList'
 import ComingSoon from '@pages/ComingSoon'
 import PollCreate from '@pages/PollCreate'
+import PollEdit from '@pages/PollEdit'
 import PollsList from '@pages/PollsList'
 import SignIn from '@pages/SignIn'
 import store from '@store/index'
@@ -59,10 +61,12 @@ const Dashboard = () =>
         <Route exact path='/' component={ComingSoon} />
         <Route exact path='/polls' component={PollsList} />
         <Route exact path='/polls/create' component={PollCreate} />
+        <Route exact path='/polls/:poll' component={PollEdit} />
         <Route exact path='/notifications' component={ComingSoon} />
         <Route exact path='/notifications/create' component={ComingSoon} />
         <Route exact path='/associates' component={AssociatesList} />
         <Route exact path='/associates/create' component={AssociatedCreate} />
+        <Route exact path='/associates/:associated' component={AssociatedEdit} />
       </Switch>
     </PageContent>
   </Grid>
