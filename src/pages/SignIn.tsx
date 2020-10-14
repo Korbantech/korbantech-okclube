@@ -1,8 +1,9 @@
 /* eslint-disable no-alert */
-import React, { useCallback, ComponentType } from 'react'
+import React, { useCallback, ComponentType, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { Redirect } from 'react-router-dom'
 
+import api from '@app/api'
 import Input from '@components/Input'
 import useHasUser from '@hooks/useHasUser'
 import { Form } from '@unform/web'
@@ -13,13 +14,17 @@ import { userSignIn } from '../actions/userSign'
 const SignIn = () => {
   const dispatch = useDispatch()
   const hasUser = useHasUser()
+  const [ loading, setLoading ] = useState( false )
 
   const onSubmit = useCallback( ( data: any ) => {
-    console.log( data )
-    if ( data.email === 'admin@admin.com' && data.password === 'admin' ) {
-      localStorage.setItem( 'user-session-save', JSON.stringify( data ) )
-      dispatch( userSignIn( data ) )
-    } else alert( 'usuário/senha inválidos' )
+    setLoading( true )
+    api.post( '/admins/auth', data )
+      .then( response => {
+        localStorage.setItem( 'user-session', JSON.stringify( response.data ) )
+        dispatch( userSignIn( response.data ) )
+      } )
+      .catch( () => { alert( 'usuário/senha inválidos' ) } )
+      .finally( setLoading.bind( null, false ) )
   }, [ dispatch ] )
 
   if ( hasUser ) return <Redirect to='/' />

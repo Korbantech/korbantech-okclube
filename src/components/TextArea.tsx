@@ -18,7 +18,12 @@ const TextArea = ( { name, ...rest }: TextArea.Props ) => {
 }
 
 namespace TextArea {
-  type TextAreaProps = React.DetailedHTMLProps<React.TextareaHTMLAttributes<HTMLTextAreaElement>, HTMLTextAreaElement>
+  export type TextAreaProps = React.DetailedHTMLProps<
+    React.TextareaHTMLAttributes<
+      HTMLTextAreaElement
+    >,
+    HTMLTextAreaElement
+  >
   export interface Props extends TextAreaProps {
     name: string
   }

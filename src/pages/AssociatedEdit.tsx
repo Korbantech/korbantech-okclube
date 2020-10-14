@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback, useRef, useState, createContext, useContext } from 'react'
-import { FaPlus, FaMinusCircle } from 'react-icons/fa'
+import { FaMinusCircle } from 'react-icons/fa'
 import { useHistory, useParams } from 'react-router-dom'
 
 import api from '@app/api'
@@ -16,9 +16,8 @@ const AssociatedEditContext = createContext( {} as any )
 const AssociatedEdit = () => {  
   const history = useHistory()
   const categoriesRequest = useRequest<any[]>( '/associates/categories' )
-  const ref = useRef<HTMLInputElement>( null )
   const [ currentImg, setCurrentImg ] = useState<null | string | ArrayBuffer>( null )
-  const [ imgErrorMessage, setImgErrorMessage ] = useState<null | string>( null )
+  const [ , setImgErrorMessage ] = useState<null | string>( null )
   const [ associated, setAssociated ] = useState<any>( null )
   const params = useParams<any>()
 
@@ -53,65 +52,108 @@ const AssociatedEdit = () => {
     reader.readAsDataURL( file )
   }, [] )
 
-  return (
-    <Container>
-      <CustomForm onSubmit={onSubmit}>
-        { !!associated && 
-          <div style={ { display: 'flex' } }>
-            <div>
-              <div style={ { display: 'flex', flexDirection: 'column', margin: '0 10px' } }>
-                { currentImg && 
-                  <img src={currentImg?.toString()} style={ { maxWidth: '200px' } }/>
-                }
-                { imgErrorMessage && <p>{imgErrorMessage}</p> }
-                <input type="file" ref={ref} onChange={onImageChange} accept="image/png, image/jpeg"/>
+  if ( ( true ) as boolean )
+    return (
+      <Container>
+        <CustomForm onSubmit={onSubmit}>
+          { associated && 
+            <>
+              <div className='columns'>
+                <div className='column'>
+                  <div className="field">
+                    <div className="file is-boxed">
+                      <label className="file-label">
+                        <input className="file-input" type="file" onChange={onImageChange}/>
+                        <span className="file-cta" style={ { padding: '1em 0.5em' } }>
+                          <span className="file-label">
+                          Escolher logo…
+                          </span>
+                        </span>
+                        <span className="file-name" style={ { padding: 0, height: 'auto', display: 'flex' } }>
+                          {currentImg && <img src={currentImg?.toString()}/>}
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div className='column is-three-fifths'>
+                  <div className="field">
+                    <label className="label">Nome</label>
+                    <div className="control">
+                      <Input className="input" name='name' defaultValue={associated.name}
+                        type="text" placeholder="Nome do associado" />
+                    </div>
+                  </div>
+                </div>
+                <div className='column'>
+                  { categoriesRequest.data && associated && 
+                  <div className="field">
+                    <label className="label">Categoria</label>
+                    <div className="control">
+                      <div className="select">
+                        <Select name='benefit_category' defaultValue={ ( () => {
+                          return categoriesRequest.data?.find(
+                            category => category.name === associated.benefit_category
+                          )?.id
+                        } )() }>
+                          {categoriesRequest.data?.map( category => 
+                            <option value={category.id}>{category.name}</option>
+                          )}
+                        </Select>
+                      </div>
+                    </div>
+                  </div> }
+                </div>
               </div>
-              <div style={ { display: 'flex', flex: 1 } }>
-                <Label style={ { flex: 1 } }>
-                Nome
-                  <CustomInput name='name' defaultValue={associated.name} required/>
-                </Label>
-                <Label>
-                Categoria
-                  <CustomSelect name='benefit_category' defaultValue={ ( () => {
-                    return categoriesRequest.data?.find(
-                      category => category.name === associated.benefit_category
-                    )?.id
-                  } )() } required>
-                    {categoriesRequest.data?.map( category => 
-                      <option value={category.id}>{category.name}</option>
-                    )}
-                  </CustomSelect>
-                </Label>
+              <div className="field">
+                <label className="label">Descrição</label>
+                <div className="control">
+                  <TextArea name='description' defaultValue={associated.description}
+                    className="textarea" placeholder="Descrição" />
+                </div>
               </div>
-              <Label>
-              Descrição
-                <CustomTextArea name='description' defaultValue={associated.description} required/>
-              </Label>
-              <div style={ { display: 'flex' } }>
-                <Label style={ { flex: 1 } }>
-                  Título do beneficio
-                  <CustomInput name='benefit_title' defaultValue={associated.benefit_title} required/>
-                </Label>
-                <Label>
-                  Desconto
-                  <CustomInput type='number' name='benefit_discount' defaultValue={associated.benefit_discount} required/>
-                </Label>
+              <div className="columns">
+                <div className="column">
+                  <div className="field">
+                    <label className="label">Título do benefio</label>
+                    <div className="control">
+                      <Input className="input" name='benefit_title' defaultValue={associated.benefit_title}
+                        type="text" placeholder="Título do benefio" />
+                    </div>
+                  </div>
+                </div>
+                <div className="column">
+                  <div className="field">
+                    <label className="label">Desconto</label>
+                    <div className="control">
+                      <Input className="input" name='benefit_discount' defaultValue={associated.benefit_discount}
+                        type="number" placeholder="Desconto" />
+                    </div>
+                  </div>
+                </div>
               </div>
-              <Label>
-                Descrição do beneficio
-                <CustomTextArea name='benefit_description' defaultValue={associated.benefit_description} required/>
-              </Label>
-              <Button>Salvar</Button>
-            </div>
-            <AssociatedEditContext.Provider value={associated}>
-              <ExtractContentComponent />
-            </AssociatedEditContext.Provider>
-          </div>
-        }
-      </CustomForm>
-    </Container>
-  )
+              <div className="field">
+                <label className="label">Descrição do beneficio</label>
+                <div className="control">
+                  <TextArea name='benefit_description' defaultValue={associated.benefit_description}
+                    className="textarea" placeholder="Descrição do beneficio" />
+                </div>
+              </div>
+              <AssociatedEditContext.Provider value={associated}>
+                <ExtractContentComponent />
+              </AssociatedEditContext.Provider>
+              <div className="field is-grouped">
+                <div className="control">
+                  <button className="button is-link">Salvar</button>
+                </div>
+              </div>
+            </>
+          }
+        </CustomForm>
+      </Container>
+    )
+
+  return null
 }
 
 const ExtractContentComponent = () => {
@@ -128,7 +170,7 @@ const ExtractContentComponent = () => {
   }, [] )
 
   return (
-    <div style={ { width: '20vw', paddingLeft: 10, borderLeft: '1px solid #ddd' } }>
+    <>
       {addresses.map( ( { address }, index ) => 
         <ExtractContentComponentFormStatic
           key={`addresses[${index}].address`}
@@ -143,55 +185,63 @@ const ExtractContentComponent = () => {
           value={phone}
         />
       )}
-      <ExtraContent>
-        <ExtraContentText>
-          <CustomP>Endereços</CustomP>
-          <FaPlus onClick={addAddress}/>
-        </ExtraContentText>
-        {addresses.map( ( address, index ) => {
-          const update = ( address: string ) => {
-            setAddresses( addresses => addresses.map( ( data, i ) => {
-              if ( index !== i ) return data
-              return { address }
-            } ) )
-          }
-          const remove = () => {
-            setAddresses( addresses => addresses.filter( iaddress => iaddress !== address ) )
-          }
-          return (
-            <div style={ { display: 'flex', justifyContent: 'space-between', margin: '10px 0 0', } }>
-              <input style={ { width: '100%' } } value={address.address} onChange={ event => update( event.currentTarget.value ) } />
-              <FaMinusCircle onClick={ remove } />
-            </div>
-          )
-        } )}
-      </ExtraContent>
-      <ExtraContent>
-        <ExtraContentText>
-          <CustomP>Telefones</CustomP>
-          <FaPlus onClick={addPhone}/>
-        </ExtraContentText>
-        {phones.map( ( phone, index ) => {
-          const update = ( phone: string ) => {
-            setPhones( phones => phones.map( ( data, i ) => {
-              if ( index !== i ) return data
-              return { phone }
-            } ) )
-          }
-          const remove = () => {
-            setPhones( phones => phones.filter( iphone => iphone !== phone ) )
-          }
+      <div className='columns'>
+        <div className='column'>
+          <label className="label">
+            Endereços
+            <span onClick={addAddress}> + </span>
+          </label>
+          {addresses.map( ( address, index ) => {
+            const update = ( address: string ) => {
+              setAddresses( addresses => addresses.map( ( data, i ) => {
+                if ( index !== i ) return data
+                return { address }
+              } ) )
+            }
 
-          return (
-            <div style={ { display: 'flex', justifyContent: 'space-between', margin: '10px 0 0', } }>
-              <input style={ { width: '100%' } } value={phone.phone}
-                onChange={ event => update( event.currentTarget.value ) } />
-              <FaMinusCircle onClick={ remove } />
-            </div>
-          )
-        } )}
-      </ExtraContent>
-    </div>
+            const remove = () => {
+              setAddresses( addresses => addresses.filter( iaddress => iaddress !== address ) )
+            }
+
+            const change = ( event: any ) => update( event.currentTarget.value )
+
+            return (
+              <ExtraContentInput>
+                <input className='input' value={address.address} onChange={change} />
+                <FaMinusCircle onClick={ remove } />
+              </ExtraContentInput>
+            )
+          } )}
+        </div>
+        <div className='column'>
+          <label className="label">
+            Telefones
+            <span onClick={addPhone}> + </span>
+          </label>
+          {phones.map( ( phone, index ) => {
+            const update = ( phone: string ) => {
+              setPhones( phones => phones.map( ( data, i ) => {
+                if ( index !== i ) return data
+                return { phone }
+              } ) )
+            }
+
+            const remove = () => {
+              setPhones( phones => phones.filter( iphone => iphone !== phone ) )
+            }
+
+            const change = ( event: any ) => update( event.currentTarget.value )
+
+            return (
+              <ExtraContentInput>
+                <input className='input' value={phone.phone} onChange={change} />
+                <FaMinusCircle onClick={ remove } />
+              </ExtraContentInput>
+            )
+          } )}
+        </div>
+      </div>
+    </>
   )
 }
 
@@ -212,66 +262,19 @@ const ExtractContentComponentFormStatic = ( { name, value }: ExtractContentCompo
   useEffect( () => {
     ref.current.value = value
   }, [ value ] ) 
+
   return null
 }
 
-const ExtraContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-top: 10px;
-`
-
-const ExtraContentText = styled.div`
+const ExtraContentInput = styled.div`
   display: flex;
   align-items: center;
-  width: 100%;
   justify-content: space-between;
-`
-
-const CustomP = styled.p`
-  margin: 0 10px 0 0;
-`
-
-const Button = styled.button`
-  outline: none;
-  font-weight: 700;
-  text-transform: uppercase;
-  font-size: 13px;
-  text-align: center;
-  color: rgba(255,255,255, 1);
-  width: 100%;
-  border: none;
-  border-radius: 20px;
-  background-color: rgba(16,89,255, 1);
-  transition: all .5s ease, top .5s ease .5s, height .5s ease .5s, background-color .5s ease .75s;
-  padding: 5px 10px;
-  width: auto;
-  margin: 10px auto;
-  display: flex;
-  :hover, :focus {
-    cursor: pointer;
-    background-color: #0F4FE6;
-    transition: background-color .5s;
-  }
+  margin: 10px 0 0;
 `
 
 const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  align-items: center;
-  justify-content: center;
-`
-
-const Label = styled.label`
-  display: flex;
-  flex-direction: column;
-  grid-area: ${ props => props.id };
-  padding: 0 10px;
-  margin: 10px 0;
-  p {
-    margin: 0;
-  }
+  height: 100vh;
 `
 
 const CustomForm = styled( Form )`
@@ -282,18 +285,9 @@ const CustomForm = styled( Form )`
   border-radius: 5px;
   padding: 10px 15px;
   grid-gap: 30px;
-`
-
-const CustomInput = styled( Input )``
-
-const CustomTextArea = styled( TextArea )`
-  grid-area: text;
-  height: 100%;
-  width: 35vw;
-`
-
-const CustomSelect = styled( Select )`
-  grid-area: ${ props => props.name };
+  height: 75%;
+  overflow-y: scroll;
+  margin-top: 5.5%;
 `
 
 namespace AssociatedEdit {}

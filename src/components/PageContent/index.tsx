@@ -8,7 +8,7 @@ const PageContent = ( props: PageContent.Props ) =>
   </Container>
 
 const Container = styled.div`
-  width: 90%;
+  width: 100%;
   margin: auto;
   height: 100%;
   padding: 0 5%;

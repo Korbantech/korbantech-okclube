@@ -28,6 +28,7 @@
       "@reducers/*": [ "src/reducers/*" ],
       "@store/*": [ "src/store/*" ],
       "@root/*": [ "src/*" ],
+      "@assets/*": [ "assets/" ],
     }
   }
 }

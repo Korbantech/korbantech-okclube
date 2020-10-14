@@ -12,7 +12,7 @@ associates.route( '/associates' )
     const page = parseInt( req.query?.page?.toString() || '0' )
     const order = req.query?.order?.toString() || 'id'
     const orderType: 'desc' | 'asc' = req.query?.desc ? 'desc' : 'asc'
-    const like: null | string = req.query?.like?.toString() || null
+    const like: null | string = req.query?.like?.toString() || req.query?.search?.toString() || null
     const excluded: 'on' | 'only' | 'true' | null =
       req.query?.excluded?.toString() as 'on' | 'only' | 'true' || null
     const categories = req.query?.categories?.toString().split( ',' ) ?? []

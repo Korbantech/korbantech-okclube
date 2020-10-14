@@ -70,6 +70,8 @@ const usePagination = <T>( url: string, {
     list, loading, error, end, load, reset
   } ), [ list, loading, error, end, load, reset ] )
 
+  console.log( pagination )
+
   return pagination
 }
 

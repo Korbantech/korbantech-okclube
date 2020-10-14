@@ -16,9 +16,9 @@ const LateralMenu = ( props: LateralMenu.Props ) => {
 }
 
 const Container = styled.div`
-  background-color: #2D3744;
-  padding-top: 15px;
+  padding: 15px 30px 0;
   overflow-y: scroll;
+
 `
 
 const List = styled.ul`

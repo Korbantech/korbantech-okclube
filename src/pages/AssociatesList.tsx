@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo, useEffect, useState } from 'react'
 import { FaEdit, FaTrashAlt } from 'react-icons/fa'
 import ReactInfiniteScroll from 'react-infinite-scroll-component'
 import { Link } from 'react-router-dom'
@@ -9,16 +9,30 @@ import usePagination from '@hooks/usePagination'
 import styled from 'styled-components'
 
 const AssociatesList = () => {
-  const params = useMemo( () => ( { order: 'updated_at', desc: true } ), [] )
-  const pagination = usePagination<any>( '/associates', {
+  const [ text, setText ] = useState( '' )
+
+  const [ like, setSearch ] = useState( '' )
+
+  useEffect( () => {
+    const timeout = setTimeout( () => {
+      setSearch( text )
+    }, 400 )
+    return () => clearTimeout( timeout )
+  }, [ text ] )
+
+  const params = useMemo( () => ( { order: 'updated_at', desc: true, like } ), [ like ] )
+
+  const { loading, load, reset, list, end } = usePagination<any>( '/associates', {
     initialPageNumber: 0,
     limitParamKey: 'per',
     params
   } )
 
+  useEffect( () => reset(), [ params, reset ] )
+
   const next = useCallback( () => {
-    if ( !pagination.loading ) return pagination.load()
-  }, [ pagination ] )
+    if ( !loading ) return load()
+  }, [ loading, load ] )
 
   return (
     <Container>
@@ -28,6 +42,8 @@ const AssociatesList = () => {
           adicionar novo
         </CustomLink>
       </Row>
+      <Input className='input' placeholder='Procurar Associado' value={text}
+        onChange={ ( event ) => setText( event.target.value ) }/>
       <Wrapper>
         <GridHeader>
           <p />
@@ -39,9 +55,9 @@ const AssociatesList = () => {
         </GridHeader>
         <Scroll id='associated-scrollable-list'>
           <CustomInfiniteScroll
-            dataLength={pagination.list.length} //This is important field to render the next data
+            dataLength={list.length} //This is important field to render the next data
             next={next}
-            hasMore={!pagination.end}
+            hasMore={!end}
             loader={(
               <Loader>
                 <Loading size={50}/>
@@ -50,7 +66,7 @@ const AssociatesList = () => {
             )}
             scrollableTarget='associated-scrollable-list'
           >
-            {pagination.list.map( associated =>
+            {list.map( associated =>
               <GridItem key={`associated-${associated.id}`}>
                 <Logo src={associated.logo}/>
                 <Name>{associated.name}</Name>
@@ -69,7 +85,7 @@ const AssociatesList = () => {
                   // eslint-disable-next-line no-alert
                   if ( confirm( 'Deseja mesmo excluir o associado?' ) )
                     api.delete( `/associates/${associated.id}` )
-                      .then( () => pagination.reset() )
+                      .then( () => reset() )
                 } }/>
               </GridItem>
             )}
@@ -79,6 +95,8 @@ const AssociatesList = () => {
     </Container>
   )
 }
+
+const Input = styled.input``
 
 const Loader = styled.div`
   display: flex;

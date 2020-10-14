@@ -1,4 +1,7 @@
+/* eslint-disable array-bracket-newline */
+/* eslint-disable array-element-newline */
 import HtmlWebpackPlugin from 'html-webpack-plugin'
+import MiniCssExtractPlugin from 'mini-css-extract-plugin'
 import path from 'path'
 import webpack, { SourceMapDevToolPlugin } from 'webpack'
 import webpackDevServer from 'webpack-dev-server'
@@ -38,9 +41,26 @@ const config: Config = {
     }, {
       test: /\.pug$/,
       loader: 'pug-loader'
+    }, {
+      test: /\.css$/,
+      use: [ MiniCssExtractPlugin.loader, 'css-loader' ]
+    }, {
+      test: /\.sass$/,
+      use: [ MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader' ]
+    }, {
+      test: /\.(png|jpe?g|gif)$/,
+      loader: 'url-loader',
+      options: {
+        // outputPath: path.resolve( '/public/assets' ),
+        // publicPath: '/public/assets'
+      }
     } ]
   },
-  plugins: [ new HtmlWebpackPlugin( htmlWebpackPluginOptions ), new SourceMapDevToolPlugin() ],
+  plugins: [
+    new HtmlWebpackPlugin( htmlWebpackPluginOptions ),
+    new SourceMapDevToolPlugin(),
+    new MiniCssExtractPlugin()
+  ],
   resolve: {
     extensions: [ '.tsx', '.ts', '.json', '.js', '.jsx' ],
     alias

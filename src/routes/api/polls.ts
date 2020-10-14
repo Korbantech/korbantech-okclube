@@ -18,18 +18,32 @@ polls.get( '/polls/:id/comments', async ( req, res ) => {
 
   const query = connection( 'polls_comments' )
     .select( 'polls_comments.*', 'users.name' )
+    .select( connection.raw( `
+      JSON_OBJECT(
+        'email', users.mail,
+        'name', users.name,
+        'photo', users_photos.photo
+      ) AS user_data
+    ` ) )
     .where( 'polls_comments.poll', req.params.id )
     .innerJoin( 'users', 'users.id', 'polls_comments.user' )
+    .leftJoin( 'users_photos', 'users_photos.user', 'users.id' )
     .limit( limit )
     .offset( page * limit )
     .orderBy( order, 'desc' )
+    .groupBy( 'polls_comments.id' )
 
   if ( !excluded ) query.whereNull( 'deleted_at' )
   else if ( excluded === 'only' ) query.whereNotNull( 'deleted_at' )
 
   if ( user ) query.where( 'user', user )
 
-  return res.json( await query )
+  const polls = ( await query ).map( poll => ( {
+    ...poll,
+    user_data: JSON.parse( poll.user_data ),
+  } ) )
+
+  return res.json( polls )
 } )
 
 polls.post( '/polls/:id/comments', async ( req, res ) => {

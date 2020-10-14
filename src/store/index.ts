@@ -3,7 +3,7 @@ import mainReducer from '@reducers/index'
 import Redux, { createStore, applyMiddleware } from 'redux'
 import logger from 'redux-logger'
 
-const userSessionSave = localStorage.getItem( 'user-session-save' )
+const userSessionSave = localStorage.getItem( 'user-session' )
 
 const user = userSessionSave ? JSON.parse( userSessionSave ) : null
 
@@ -18,8 +18,10 @@ const store: Redux.Store<store.State, store.Action> = createStore<store.State, s
 namespace store {
   export namespace State {
     export interface User {
+      id: number
+      token: string
       email: string
-      password: string // temporary password
+      name: string
     }
   }
   export interface State {

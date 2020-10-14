@@ -34,21 +34,22 @@ const PollItemList = ( { poll, reset }: PollItemList.Props ) => {
 
   return (
     <Container onClick={ toggleAdditionalInformation }>
-      <InlinePoll>
-        <Text>
-          {poll.text}
-        </Text>
-        <CustomEditLink to={`/polls/${poll.id}`}>
-          <FaEdit />
-        </CustomEditLink>
-        <FaTrashAlt style={ { margin: '5px' } } onClick={ ( event ) => {
-          event.preventDefault()
-          if ( confirm( 'Deseja mesmo excluir a enquete?' ) )
-            api.delete( `/polls/${poll.id}` )
-              .then( () => reset() )
-        } } />
-      </InlinePoll>
-      { open && 
+      <Link to={`/polls/${poll.id}/details`}>
+        <InlinePoll>
+          <Text>
+            {poll.text}
+          </Text>
+          <CustomEditLink to={`/polls/${poll.id}`}>
+            <FaEdit />
+          </CustomEditLink>
+          <FaTrashAlt style={ { margin: '5px' } } onClick={ ( event ) => {
+            event.preventDefault()
+            if ( confirm( 'Deseja mesmo excluir a enquete?' ) )
+              api.delete( `/polls/${poll.id}` )
+                .then( () => reset() )
+          } } />
+        </InlinePoll>
+        { open && 
         <AdditionalInformation>
           {request.loading || !request.init
             ? <p>Carregando...</p>
@@ -60,7 +61,8 @@ const PollItemList = ( { poll, reset }: PollItemList.Props ) => {
             </div>
           }
         </AdditionalInformation>
-      }
+        }
+      </Link>
     </Container>
   )
 }
