@@ -56,7 +56,7 @@ const Dashboard = () =>
         <LateralMenu.Item text='Criar' to='/polls/create' />
       </LateralMenu.Item>
       <LateralMenu.Item icon={FaBell} text='Notificações' to='/notifications'>
-        <LateralMenu.Item text='Lista' to='/notifications' />
+        <LateralMenu.Item text='Hístorico' to='/notifications' />
         <LateralMenu.Item text='Criar' to='/notifications/create' />
       </LateralMenu.Item>
       <LateralMenu.Item icon={FaUsers} text='Parceiros' to='/associates'>

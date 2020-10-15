@@ -6,6 +6,7 @@ import { Redirect } from 'react-router-dom'
 import api from '@app/api'
 import Input from '@components/Input'
 import useHasUser from '@hooks/useHasUser'
+import logo from '@public/assets/grupo-nd.png'
 import { Form } from '@unform/web'
 import styled from 'styled-components'
 
@@ -14,7 +15,7 @@ import { userSignIn } from '../actions/userSign'
 const SignIn = () => {
   const dispatch = useDispatch()
   const hasUser = useHasUser()
-  const [ loading, setLoading ] = useState( false )
+  const [ , setLoading ] = useState( false )
 
   const onSubmit = useCallback( ( data: any ) => {
     setLoading( true )
@@ -31,7 +32,8 @@ const SignIn = () => {
 
   return (
     <Container>
-      <CustomForm onSubmit={onSubmit}>
+      <CustomForm onSubmit={onSubmit} style={ { maxWidth: '30%' } }>
+        <img src={logo} style={ { maxWidth: '50%' } }/>
         <SignInInput name='email' label='Email' type='email' required/>
         <SignInInput name='password' label='Password' type='password' required/>
         <Button>Entrar</Button>

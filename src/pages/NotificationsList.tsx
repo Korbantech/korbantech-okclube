@@ -1,9 +1,9 @@
 import React, { useCallback } from 'react'
 import ReactInfiniteScroll from 'react-infinite-scroll-component'
+import { Link } from 'react-router-dom'
 
 import Loading from '@components/Loading'
 import usePagination from '@hooks/usePagination'
-import moment from 'moment'
 import styled from 'styled-components'
 
 const NotificationList = () => {
@@ -17,6 +17,9 @@ const NotificationList = () => {
     <Container>
       <Row>
         <h2>Notificações</h2>
+        <CustomLink to='/associates/create'>
+          adicionar novo
+        </CustomLink>
       </Row>
       <Wrapper>
         <GridHeader>
@@ -39,15 +42,17 @@ const NotificationList = () => {
             )}
             scrollableTarget='associated-scrollable-list'
           >
-            {list.map( notification =>
-              <GridItem key={`notification-${notification.id}`}>
-                <div>{notification.title}</div>
-                <div>{new Date( notification.created_at ).toLocaleString( 'pt-BR' )}</div>
-                <div>{notification.user.name}</div>
-                <div>{notification.success}</div>
-                <div>{notification.failure}</div>
-              </GridItem>
-            )}
+            {list.length
+              ? list.map( notification =>
+                <GridItem key={`notification-${notification.id}`}>
+                  <div>{notification.title}</div>
+                  <div>{new Date( notification.created_at ).toLocaleString( 'pt-BR' )}</div>
+                  <div>{notification.user.name}</div>
+                  <div>{notification.success}</div>
+                  <div>{notification.failure}</div>
+                </GridItem>
+              )
+              : <h5>Nenhuma notificação enviada</h5> }
           </CustomInfiniteScroll>
         </Scroll>
       </Wrapper>
@@ -111,6 +116,17 @@ const Row = styled.div`
   flex-direction: row;
   align-items: baseline;
 `
+
+const CustomLink = styled( Link )`
+  margin: 0 10px;
+  background-color: white;
+  box-shadow: 0 0 5px 0 #00000020;
+  border-radius: 5px;
+  text-decoration: none;
+  color: blue;
+  padding: 5px 10px;
+`
+
 
 namespace NotificationList {}
 
