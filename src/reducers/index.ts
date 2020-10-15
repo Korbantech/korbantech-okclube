@@ -1,6 +1,5 @@
 /* eslint-disable default-param-last */
 import deep from '@cookiex/deep'
-
 import { State, Reducer } from '@store/index'
 
 const initialState: State = {}

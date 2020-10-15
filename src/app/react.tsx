@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { FaHome, FaPoll, FaBell, FaUsers } from 'react-icons/fa'
-import { Provider } from 'react-redux'
+import { Provider, useDispatch } from 'react-redux'
 import { BrowserRouter, Switch, Route } from 'react-router-dom'
 
 import AuthorizationRoute from '@components/AuthorizationRoute'
@@ -18,6 +18,7 @@ import PollEdit from '@pages/PollEdit'
 import PollsList from '@pages/PollsList'
 import SignIn from '@pages/SignIn'
 import logo from '@public/assets/grupo-nd.png'
+import { userSignOut } from '@root/actions/userSign'
 import store from '@store/index'
 import styled, { createGlobalStyle } from 'styled-components'
 
@@ -46,6 +47,21 @@ const AppReact = () =>
     </BrowserRouter>
   </Provider>
 
+const LogoutAction = () => {
+  const dispatch = useDispatch()
+
+  const logout = useCallback( () => {
+    localStorage.removeItem( 'user-session' )
+    dispatch( userSignOut )
+  }, [ dispatch ] )
+
+  return (
+    <div style={ { width: '100%' } } onClick={ logout }>
+      <p>Sair</p>
+    </div>
+  )
+}
+
 const Dashboard = () => 
   <Grid>
     <LateralMenu>
@@ -63,6 +79,7 @@ const Dashboard = () =>
         <LateralMenu.Item text='Lista' to='/associates' />
         <LateralMenu.Item text='Criar' to='/associates/create' />
       </LateralMenu.Item>
+      <LogoutAction />
     </LateralMenu>
     <PageContent>
       <Switch>
