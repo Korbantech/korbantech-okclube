@@ -11,8 +11,6 @@ import styled from 'styled-components'
 const PollCreate = () => {
   const programsRequest = useRequest<any[]>( '/programs' )
   const locationRequest = useRequest<any[]>( 'https://ndmais.com.br/wp-json/ndmais/v1/content/filters/location/' )
-
-  console.log( locationRequest )
   
   const history = useHistory()
 

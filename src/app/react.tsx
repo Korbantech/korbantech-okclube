@@ -1,11 +1,12 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 import { FaHome, FaPoll, FaBell, FaUsers } from 'react-icons/fa'
 import { Provider, useDispatch } from 'react-redux'
-import { BrowserRouter, Switch, Route } from 'react-router-dom'
+import { BrowserRouter, Switch, Route, Redirect } from 'react-router-dom'
 
 import AuthorizationRoute from '@components/AuthorizationRoute'
 import LateralMenu from '@components/LateralMenu'
 import PageContent from '@components/PageContent'
+import useHasUser from '@hooks/useHasUser'
 import AssociatedCreate from '@pages/AssociatedCreate'
 import AssociatedEdit from '@pages/AssociatedEdit'
 import AssociatesList from '@pages/AssociatesList'
@@ -48,15 +49,19 @@ const AppReact = () =>
   </Provider>
 
 const LogoutAction = () => {
+  const user = useHasUser()
   const dispatch = useDispatch()
 
   const logout = useCallback( () => {
     localStorage.removeItem( 'user-session' )
-    dispatch( userSignOut )
+    dispatch( userSignOut() )
   }, [ dispatch ] )
+
+  // if ( ( true ) as boolean ) return null
 
   return (
     <div style={ { width: '100%' } } onClick={ logout }>
+      { !user ? <Redirect to='/sign-in' /> : false }
       <p>Sair</p>
     </div>
   )

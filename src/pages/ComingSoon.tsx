@@ -1,10 +1,11 @@
 import React from 'react'
 
+import logo from '@public/assets/grupo-nd.png'
 import styled from 'styled-components'
 
 const ComingSoon = () => 
   <Container>
-    <Title>Área em desenvolvimento</Title>
+    <img src={logo} style={ { width: '40%', display: 'flex' } }/>
   </Container>
 
 const Container = styled.div`
