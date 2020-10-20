@@ -17,7 +17,7 @@ const NotificationList = () => {
     <Container>
       <Row>
         <h2>Notificações</h2>
-        <CustomLink to='/associates/create'>
+        <CustomLink to='/notifications/create'>
           adicionar novo
         </CustomLink>
       </Row>

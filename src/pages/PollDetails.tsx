@@ -18,7 +18,7 @@ const PollDetails = () => {
   }, [ init, send ] )
 
   const responses = useMemo<Record<'yes' | 'no', number>>( () => {
-    return Object.assign( { no: 0, yes: 0 }, data )
+    return Object.assign( { no: 0, yes: 0 }, data.responses )
   }, [ data ] )
 
   const next = useCallback( () => {

@@ -35,6 +35,8 @@ api.use( associates )
 api.use( notifications )
 api.use( admins )
 
+api.use( '/public', Express.static( 'public' ) )
+
 api.get( '/check/:id', async ( req, res ) => {
 
   const id = parseInt( req.params?.id?.toString() || '0', 10 )
