@@ -99,7 +99,7 @@ const AssociatedCreate = () => {
                 </div>
               </div>
               <div className="field">
-                <label className="label">Descrição</label>
+                <label className="label">Regulamento</label>
                 <div className="control">
                   <TextArea name='description' defaultValue={associated.description}
                     className="textarea" placeholder="Descrição" />
