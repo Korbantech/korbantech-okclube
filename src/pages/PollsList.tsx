@@ -1,7 +1,10 @@
 /* eslint-disable array-bracket-newline */
 /* eslint-disable array-element-newline */
 import React, { useCallback, useMemo, useState, useEffect } from 'react'
+import { FaEdit, FaTrashAlt } from 'react-icons/fa'
+import { Link } from 'react-router-dom'
 
+import api from '@app/api'
 import InfiniteScrollTable from '@components/InfiniteScrollTable'
 import Loading from '@components/Loading'
 import ScreenHeaderWithSearch from '@components/ScreenHeaderWithSearch'
@@ -65,8 +68,16 @@ const PollsList = () => {
             
             return location.name
           },
-          () => 'item c 4',
-          () => 'item c 5',
+          poll =>
+            <Link to={`/polls/${poll.id}`} style={ { color: 'currentColor' } }>
+              <FaEdit />
+            </Link>,
+          poll => <FaTrashAlt style={ { cursor: 'pointer' } } onClick={ () => {
+            // eslint-disable-next-line no-alert
+            if ( confirm( 'Deseja mesmo excluir o associado?' ) )
+              api.delete( `/polls/${poll.id}` )
+                .then( () => pagination.reset() )
+          } }/>
         ] }
       />
     </Container>
