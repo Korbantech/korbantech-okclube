@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useCallback } from 'react'
 import ReactInfiniteScroll from 'react-infinite-scroll-component'
 import { useParams } from 'react-router-dom'
 
+import api from '@app/api'
 import Loading from '@components/Loading'
 import usePagination from '@hooks/usePagination'
 import useRequest from '@hooks/useRequest'
@@ -104,7 +105,12 @@ const PollDetails = () => {
                         </nav>
                       </div>
                       <div className="media-right">
-                        <button className="delete" onClick={ () => {} }/>
+                        <button className="delete" onClick={ () => {
+                          // eslint-disable-next-line no-alert
+                          if ( confirm( 'Deseja mesmo excluir o comentário?' ) )
+                            api.delete( `/polls/comments/${comment.id}` )
+                              .then( () => pagination.reset() )
+                        } }/>
                       </div>
                     </article>
                   )

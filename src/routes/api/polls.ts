@@ -59,6 +59,14 @@ polls.post( '/polls/:id/comments', async ( req, res ) => {
   return res.json()
 } )
 
+polls.delete( '/polls/comments/:id', async ( req, res ) => {
+  if ( !req.params.id ) return res.status( 422 ).json()
+  await connection( 'polls_comments' )
+    .where( 'id', req.params.id )
+    .update( { deleted_at: new Date() } )
+  return res.json()
+} )
+
 polls.route( '/polls/:id/details' )
   .get( async ( req, res ) => {
     connection( 'polls' )
