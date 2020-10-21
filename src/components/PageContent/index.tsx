@@ -12,7 +12,6 @@ const Container = styled.div`
   margin: auto;
   height: 100%;
   padding: 0 5%;
-  background-color: #cccccc30;
 `
 
 namespace PageContent {

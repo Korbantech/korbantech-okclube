@@ -43,37 +43,62 @@ const PollEdit = () => {
     <Container>
       <CustomForm onSubmit={onSubmit}>
         { poll && 
-          <>
-            <Label id='text'>
-              Texto
-              <CustomTextArea name='text' defaultValue={poll.text} required/>
-            </Label>
-            <Label id='program'>
-              Programa
-              { !!programsRequest.data && 
-                <CustomSelect name='program' defaultValue={poll.program}>
-                  <option value={'undefined'}>Nenhum</option>
-                  {programsRequest.data.map( program => 
-                    <option key={`program-option-${program.ID}`} value={program.ID}>{program.name}</option>
-                  )}
-                </CustomSelect>
-              }
-            </Label>
-            <Label id='location'>
-              Local
-              { !!locationRequest.data && 
-                <CustomSelect name='location' defaultValue={poll.location}>
-                  <option value={'undefined'}>Nenhuma</option>
-                  {locationRequest.data?.map( location => 
-                    <option key={`location-option-${location.slug}`} value={location.slug}>
-                      {location.name}
-                    </option>
-                  )}
-                </CustomSelect>
-              }
-            </Label>
-            <Button>Salvar</Button>
-          </>
+            <>
+              <div className='columns'>
+                <div className='column'>
+                  <div className="field">
+                    <label className="label">Texto</label>
+                    <div className="control">
+                      <TextArea className="textarea" name='text' defaultValue={poll.text} placeholder="Texto" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className='columns'>
+                <div className='column is-5'>
+                  <div className="field">
+                    <label className="label">Programa</label>
+                    <div className="control">
+                      <div className="select">
+                        { programsRequest.data
+                          ? 
+                          <Select name='program' defaultValue={ poll.program }>
+                            <option value={'undefined'}>Nenhum</option>
+                            {programsRequest.data.map( program => 
+                              <option key={`program-option-${program.ID}`} value={program.ID}>{program.name}</option>
+                            )}
+                          </Select>
+                          : null }
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className='column is-5' >
+                  <div className="field">
+                    <label className="label">Local</label>
+                    <div className="control">
+                      <div className="select">
+                        { locationRequest.data
+                          ? 
+                          <Select name='location' defaultValue={ poll.location }>
+                            <option value={'undefined'}>Nenhum</option>
+                            {locationRequest.data?.map( location => 
+                              <option key={`location-option-${location.slug}`} value={location.slug}>
+                                {location.name}
+                              </option>
+                            )}
+                          </Select>
+                          : null }
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className='column is-2'
+                  style={ { display: 'flex', alignItems: 'center', justifyContent: 'center' } }>
+                  <Button>Salvar</Button>
+                </div>
+              </div>
+            </>
         }
       </CustomForm>
     </Container>
@@ -120,12 +145,9 @@ const Label = styled.label`
 
 const CustomForm = styled( Form )`
   background-color: white;
-  display: grid;
-  grid-template-areas: "text program" "text location" "text submit";
   box-shadow: 0 0 5px 0 #00000040;
   border-radius: 5px;
   padding: 10px 15px;
-  grid-gap: 30px;
 `
 
 const CustomTextArea = styled( TextArea )`

@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback } from 'react'
 import { FaHome, FaPoll, FaBell, FaUsers } from 'react-icons/fa'
 import { Provider, useDispatch } from 'react-redux'
 import { BrowserRouter, Switch, Route, Redirect } from 'react-router-dom'
@@ -35,6 +35,13 @@ const GlobalStyle = createGlobalStyle`
     height: 100vh;
     overflow: hidden;
   }
+  ::-webkit-{
+    &scrollbar {
+      width: 0;
+      &-track {}
+      &-thumb {}
+    }
+  }
 `
 
 const AppReact = () => 
@@ -57,8 +64,6 @@ const LogoutAction = () => {
     dispatch( userSignOut() )
   }, [ dispatch ] )
 
-  // if ( ( true ) as boolean ) return null
-
   return (
     <div style={ { width: '100%' } } onClick={ logout }>
       { !user ? <Redirect to='/sign-in' /> : false }
@@ -71,7 +76,7 @@ const Dashboard = () =>
   <Grid>
     <LateralMenu>
       <img src={logo} style={ { width: '60%', margin: '15% auto', display: 'flex' } }/>
-      <LateralMenu.Item icon={FaHome} text='Principal' to='/' />
+      <LateralMenu.Item icon={FaHome} exact text='Principal' to='/' />
       <LateralMenu.Item icon={FaPoll} text='Enquetes' to='/polls'>
         <LateralMenu.Item text='Lista' to='/polls' />
         <LateralMenu.Item text='Criar' to='/polls/create' />

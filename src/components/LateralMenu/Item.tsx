@@ -1,69 +1,35 @@
-import React, { PropsWithChildren, useMemo, useState, useCallback } from 'react'
+
+import React, { PropsWithChildren, useMemo } from 'react'
 import { IconType } from 'react-icons'
-import { FaChevronRight, FaChevronLeft } from 'react-icons/fa'
 import { NavLink, useLocation } from 'react-router-dom'
 
+import { NEUTRAL_COLOR } from '@constants/colors'
 import styled from 'styled-components'
 
 
 const LateralMenuItem = ( props: LateralMenuItem.Props ) => {
-  const hasChildren = useMemo( () => !!props.children, [ props.children ] )
-
-  if ( hasChildren ) return <LateralMenuItemWithChildrens {...props}/>
-
   return <LateralMenuItemWithoutChildrens {...props}/>
 }
 
-const LateralMenuItemWithoutChildrens = ( { to, text, icon: Icon }: LateralMenuItem.Props ) => {
+const LateralMenuItemWithoutChildrens = ( { to, text, exact = false }: LateralMenuItem.Props ) => {
   const location = useLocation()
 
-  const isActive = useMemo( () => !!location.pathname.match( to ), [ location, to ] )
+  const isActive = useMemo( () => {
+    if ( !exact )
+      return !!location.pathname.match( to )
+    return location.pathname === to
+  }, [ location, to, exact ] )
 
-  const color = useMemo( () => isActive ? '#363636' : '#53728E', [ isActive ] )
-
-  return (
-    <Container>
-      <LateralMenuItemRow>
-        { !!Icon && 
-          <Link to={to}>
-            <Icon color={color}/>
-          </Link>
-        }
-        <Link to={to}>{text}</Link>
-      </LateralMenuItemRow>
-    </Container>
-  )
-}
-
-const LateralMenuItemWithChildrens = ( { to, text, icon: Icon, children }: LateralMenuItem.Props ) => {
-  const location = useLocation()
-
-  const isActive = useMemo( () => !!location.pathname.match( to ), [ location, to ] )
-  
-  const [ open, setOpen ] = useState( isActive )
-
-  const clickChevron = useCallback( () => setOpen( open => !open ), [] )
-
-  const color = useMemo( () => isActive ? '#363636' : '#53728E', [ isActive ] )
+  const backgroundColor = useMemo( () => {
+    if ( isActive ) return 'white'
+    else return NEUTRAL_COLOR
+  }, [ isActive ] )
 
   return (
-    <Container>
+    <Container style={ { backgroundColor } }>
       <LateralMenuItemRow>
-        { !!Icon &&
-          <Link to={to}>
-            <Icon color={color}/>
-          </Link>
-        }
         <Link to={to}>{text}</Link>
-        { open
-          ? <FaChevronLeft size={12} color={color} onClick={clickChevron}/>
-          : <FaChevronRight size={12} color={color} onClick={clickChevron}/> }
       </LateralMenuItemRow>
-      { open && 
-        <LateralMenuItemSubList>
-          {children}
-        </LateralMenuItemSubList>
-      }
     </Container>
   )
 }
@@ -74,12 +40,6 @@ const LateralMenuItemRow = styled.div`
   align-items: center;
 `
 
-const LateralMenuItemSubList = styled.ul`
-  margin: 0 0 0 5px;
-  padding: 0;
-  list-style: none;
-`
-
 const Container = styled.li`
   padding: 5px 10px;
   margin: 10px 0;
@@ -88,10 +48,10 @@ const Container = styled.li`
 const Link = styled( NavLink )`
   text-decoration: none;
   margin: 0 10px;
-  color: #53728E;
-  &.active {
-    color: #363636;
-  }
+  text-align: left;
+  font: normal normal medium 20px/26px Roboto;
+  letter-spacing: 0px;
+  color: #1A1A1A;
 `
 
 namespace LateralMenuItem {
@@ -99,6 +59,7 @@ namespace LateralMenuItem {
     to: string
     text: string
     icon?: IconType
+    exact?: boolean
   }
 }
 

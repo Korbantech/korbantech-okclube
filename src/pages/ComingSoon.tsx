@@ -16,8 +16,4 @@ const Container = styled.div`
   justify-content: center;
 `
 
-const Title = styled.h2`
-
-`
-
 export = ComingSoon
