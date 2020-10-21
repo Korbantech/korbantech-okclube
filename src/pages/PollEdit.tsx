@@ -134,30 +134,11 @@ const Container = styled.div`
   justify-content: center;
 `
 
-const Label = styled.label`
-  display: flex;
-  flex-direction: column;
-  grid-area: ${ props => props.id };
-  p {
-    margin: 0;
-  }
-`
-
 const CustomForm = styled( Form )`
   background-color: white;
   box-shadow: 0 0 5px 0 #00000040;
   border-radius: 5px;
   padding: 10px 15px;
-`
-
-const CustomTextArea = styled( TextArea )`
-  grid-area: text;
-  height: 100%;
-  width: 35vw;
-`
-
-const CustomSelect = styled( Select )`
-  grid-area: ${ props => props.name };
 `
 
 namespace PollEdit {}

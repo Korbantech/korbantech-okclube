@@ -1,9 +1,10 @@
 import React, { useEffect, useCallback, useRef, useState, createContext, useContext } from 'react'
-import { FaMinusCircle } from 'react-icons/fa'
+import { FaMinusCircle, FaImage } from 'react-icons/fa'
 import { useHistory, useParams } from 'react-router-dom'
 
 import api from '@app/api'
 import Input from '@components/Input'
+import Loading from '@components/Loading'
 import Select from '@components/Select'
 import TextArea from '@components/TextArea'
 import useRequest from '@hooks/useRequest'
@@ -59,24 +60,7 @@ const AssociatedEdit = () => {
           { associated && 
             <>
               <div className='columns'>
-                <div className='column'>
-                  <div className="field">
-                    <div className="file is-boxed">
-                      <label className="file-label">
-                        <input className="file-input" type="file" onChange={onImageChange}/>
-                        <span className="file-cta" style={ { padding: '1em 0.5em' } }>
-                          <span className="file-label">
-                          Escolher logo…
-                          </span>
-                        </span>
-                        <span className="file-name" style={ { padding: 0, height: 'auto', display: 'flex' } }>
-                          {currentImg && <img src={currentImg?.toString()}/>}
-                        </span>
-                      </label>
-                    </div>
-                  </div>
-                </div>
-                <div className='column is-three-fifths'>
+                <div className='column is-9'>
                   <div className="field">
                     <label className="label">Nome</label>
                     <div className="control">
@@ -85,35 +69,72 @@ const AssociatedEdit = () => {
                     </div>
                   </div>
                 </div>
-                <div className='column'>
-                  { categoriesRequest.data && associated && 
+                <div className='column is-3'>
                   <div className="field">
                     <label className="label">Categoria</label>
                     <div className="control">
-                      <div className="select">
-                        <Select name='benefit_category' defaultValue={ ( () => {
-                          return categoriesRequest.data?.find(
-                            category => category.name === associated.benefit_category
-                          )?.id
-                        } )() }>
-                          {categoriesRequest.data?.map( category => 
-                            <option value={category.id}>{category.name}</option>
-                          )}
-                        </Select>
+                      <div className="select" style={ { width: '100%' } }>
+                        { categoriesRequest.data && associated
+                          ? 
+                          <Select name='benefit_category'
+                            style={ { width: '100%' } }
+                            defaultValue={ ( () => {
+                              return categoriesRequest.data?.find(
+                                category => category.name === associated.benefit_category
+                              )?.id
+                            } )() }>
+                            {categoriesRequest.data?.map( category => 
+                              <option value={category.id}>{category.name}</option>
+                            )}
+                          </Select>
+                        
+                          : <Loading size={20} /> }
                       </div>
                     </div>
-                  </div> }
-                </div>
-              </div>
-              <div className="field">
-                <label className="label">Regulamento</label>
-                <div className="control">
-                  <TextArea name='description' defaultValue={associated.description}
-                    className="textarea" placeholder="Descrição" />
+                  </div>
                 </div>
               </div>
               <div className="columns">
-                <div className="column">
+                <div className="column is-9">
+                  <div className="field">
+                    <label className="label">Regulamento</label>
+                    <div className="control">
+                      <TextArea name='description' defaultValue={associated.description}
+                        className="textarea" placeholder="Descrição" />
+                    </div>
+                  </div>
+                </div>
+                <div className="column is-3">
+                  <div className="field" style={ { height: '100%' } }>
+                    <label className="label">Logo</label>
+                    <div className="control" style={ { height: '80%' } }>
+                      <label style={ {
+                        display: 'flex',
+                        width: '100%',
+                        height: '100%',
+                        border: '2px dashed #707070',
+                      } }>
+                        {currentImg
+                          ? <img src={currentImg.toString()} />
+                          : <div style={ {
+                            display: 'flex',
+                            width: '100%',
+                            height: '100%',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            flexDirection: 'column'
+                          } }>
+                            <FaImage size={30}/>
+                            <p>Escolher imagem...</p>
+                          </div> }
+                        <input type='file' style={ { display: 'none' } } onChange={onImageChange}/>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="columns">
+                <div className="column is-9">
                   <div className="field">
                     <label className="label">Título do benefio</label>
                     <div className="control">
@@ -122,7 +143,7 @@ const AssociatedEdit = () => {
                     </div>
                   </div>
                 </div>
-                <div className="column">
+                <div className="column is-3">
                   <div className="field">
                     <label className="label">Desconto</label>
                     <div className="control">
@@ -143,8 +164,11 @@ const AssociatedEdit = () => {
                 <ExtractContentComponent />
               </AssociatedEditContext.Provider>
               <div className="field is-grouped">
-                <div className="control">
-                  <button className="button is-link">Salvar</button>
+                <div className="control" style={ { marginLeft: 'auto' } }>
+                  <button className="button is-link" style={ {
+                    backgroundColor: '#001F87',
+                    padding: '10px 40px'
+                  } }>Salvar</button>
                 </div>
               </div>
             </>
@@ -186,10 +210,9 @@ const ExtractContentComponent = () => {
         />
       )}
       <div className='columns'>
-        <div className='column'>
+        <div className='column is-9'>
           <label className="label">
             Endereços
-            <span onClick={addAddress}> + </span>
           </label>
           {addresses.map( ( address, index ) => {
             const update = ( address: string ) => {
@@ -207,16 +230,19 @@ const ExtractContentComponent = () => {
 
             return (
               <ExtraContentInput>
-                <input className='input' value={address.address} onChange={change} />
+                <input className='input' style={ { width: '95%' } } value={address.address} onChange={change} />
                 <FaMinusCircle onClick={ remove } />
               </ExtraContentInput>
             )
           } )}
+          <AddNewContainer onClick={addAddress}>
+            <AddNewSymbol>+</AddNewSymbol>
+            novo endereço
+          </AddNewContainer>
         </div>
-        <div className='column'>
+        <div className='column is-3'>
           <label className="label">
             Telefones
-            <span onClick={addPhone}> + </span>
           </label>
           {phones.map( ( phone, index ) => {
             const update = ( phone: string ) => {
@@ -234,16 +260,33 @@ const ExtractContentComponent = () => {
 
             return (
               <ExtraContentInput>
-                <input className='input' value={phone.phone} onChange={change} />
+                <input className='input' style={ { width: '95%' } } value={phone.phone} onChange={change} />
                 <FaMinusCircle onClick={ remove } />
               </ExtraContentInput>
             )
           } )}
+          <AddNewContainer onClick={addPhone}>
+            <AddNewSymbol>+</AddNewSymbol>
+            novo telefone
+          </AddNewContainer>
         </div>
       </div>
     </>
   )
 }
+
+const AddNewContainer = styled.span`
+  text-align: left;
+  font: normal normal medium 16px/40px Roboto;
+  letter-spacing: 0px;
+  color: #001F87;
+  opacity: 1;
+`
+
+const AddNewSymbol = styled.span`
+  font-size: 20px;
+  margin: 5px;
+`
 
 type ExtractContentComponentFormStaticProps = { name: string, value: any }
 
