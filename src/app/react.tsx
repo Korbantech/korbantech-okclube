@@ -23,6 +23,8 @@ import logo from '@public/assets/grupo-nd.png'
 import { userSignOut } from '@root/actions/userSign'
 import store from '@store/index'
 import styled, { createGlobalStyle } from 'styled-components'
+import Coupons from '@pages/Relatories/Coupons'
+import AnsweredPolls from '@pages/Relatories/AnsweredPolls'
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -119,8 +121,8 @@ const Dashboard = () =>
         <Route exact path='/associates' component={AssociatesList} />
         <Route exact path='/associates/create' component={AssociatedCreate} />
         <Route exact path='/associates/:associated' component={AssociatedEdit} />
-        <Route exact path='/relatories/coupons' component={ () => null } />
-        <Route exact path='/relatories/polls' component={ () => null } />
+        <Route exact path='/relatories/coupons' component={ Coupons } />
+        <Route exact path='/relatories/polls' component={ AnsweredPolls } />
       </Switch>
     </PageContent>
   </Grid>
