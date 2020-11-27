@@ -18,13 +18,13 @@ import PollCreate from '@pages/PollCreate'
 import PollDetails from '@pages/PollDetails'
 import PollEdit from '@pages/PollEdit'
 import PollsList from '@pages/PollsList'
+import AnsweredPolls from '@pages/Relatories/AnsweredPolls'
+import Coupons from '@pages/Relatories/Coupons'
 import SignIn from '@pages/SignIn'
 import logo from '@public/assets/grupo-nd.png'
 import { userSignOut } from '@root/actions/userSign'
 import store from '@store/index'
 import styled, { createGlobalStyle } from 'styled-components'
-import Coupons from '@pages/Relatories/Coupons'
-import AnsweredPolls from '@pages/Relatories/AnsweredPolls'
 
 const GlobalStyle = createGlobalStyle`
   * {

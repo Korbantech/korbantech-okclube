@@ -1,14 +1,16 @@
 import React, { PropsWithChildren } from 'react'
+import { IoIosArrowDown } from 'react-icons/io'
 
 import styled from 'styled-components'
 
 import Option  from './Option'
-import { IoIosArrowDown } from 'react-icons/io'
 
 
 class CustomSelect extends React.Component<CustomSelect.CustomSelectProps, CustomSelect.CustomSelectState>{
 
   static Option: typeof Option
+  wrapperRef: React.RefObject<any>
+  noSelectedText: string
 
   constructor( props:any ) {
     super( props )
@@ -16,23 +18,50 @@ class CustomSelect extends React.Component<CustomSelect.CustomSelectProps, Custo
     this.state = {
       open: false
     }
-    this.toggle = this.toggle.bind( this )
+
+    this.noSelectedText = props.noSelectedText ?? 'Todos'
+    this.wrapperRef = React.createRef<any>()
+    this.toggleOpen = this.toggleOpen.bind( this )
     this.selectOption = this.selectOption.bind( this )
+    this.handleClickOutside = this.handleClickOutside.bind( this )
+    this.selectFirstOrSelectedAttr = this.selectFirstOrSelectedAttr.bind( this )
   }
 
   componentDidMount( ){
-    let selected:React.ReactElement<any> | undefined = undefined
+    document.addEventListener( 'mousedown', this.handleClickOutside )
+    this.selectFirstOrSelectedAttr()
+  }
 
+  componentWillUnmount() {
+    document.removeEventListener( 'mousedown', this.handleClickOutside )
+  }
+
+  handleClickOutside( event:any ){
+
+    if (
+      this.wrapperRef
+      && this.wrapperRef.current
+      && !this.wrapperRef.current.contains( event.target ) ) {
+      this.setState( prevState => ( { ...prevState, open: false } ) )
+    }
+  }
+
+  selectFirstOrSelectedAttr(){
+    if( this.state.selected ) return
+
+    let selected:any = null
     React.Children.map( this.props.children, child => {
-      const current:React.ReactElement<Option.Props> = React.cloneElement( child as React.ReactElement< Option.Props > )
-      if( !selected || current.props.selected ) {
+      const current:React.ReactElement<Option.Props> = React.cloneElement( child as React.ReactElement<Option.Props> )
+      if(  !selected && !this.state.selected  || current.props.selected ) {
         selected = current
         this.selectOption( current )
       }
       return child
     } )
+  }
 
-
+  componentDidUpdate(){
+    this.selectFirstOrSelectedAttr()
   }
 
   selectOption( option: React.ReactElement<Option.Props> ):void{
@@ -43,31 +72,31 @@ class CustomSelect extends React.Component<CustomSelect.CustomSelectProps, Custo
         selected: option
       }
     ) )
-    option.props.value && this.props.onSelect && this.props.onSelect( option.props.value )
+    this.props.onSelect && this.props.onSelect( option.props.value )
   }
 
-  toggle() {
+  toggleOpen() {
     this.setState( prevState => ( { ...prevState, open: !this.state.open } ) )
   }
 
   render() {
     return(
-      <Container>
+      <Container ref={this.wrapperRef}  >
         { this.props.label && <Label> { this.props.label } </Label> }
         <Wrapper open={ this.state.open } >
-          <Selected onClick={ this.toggle } >
+          <Selected onClick={ this.toggleOpen } >
             { this.state.selected?.props.children }
             <ArrowIcon>
-              <IoIosArrowDown color="#001F87" size={ 14 }/>
+              <IoIosArrowDown color="#001F87" size={ 20 }/>
             </ArrowIcon>
           </Selected>
 
           <OptionsList>
-            { this.props.children && React.Children.map( this.props.children, child => (
+            { this.props.children && React.Children.map( this.props.children, child =>
               React.cloneElement( child as React.ReactElement<Option.Props>, {
                 handleOptionClick: this.selectOption
               } )
-            ) ) }
+            ) }
           </OptionsList>
         </Wrapper>
       </Container>
@@ -76,7 +105,7 @@ class CustomSelect extends React.Component<CustomSelect.CustomSelectProps, Custo
 }
 
 type ContainerProps = {
-  open: boolean
+  open: boolean,
 }
 
 const ArrowIcon = styled.div`
@@ -92,12 +121,14 @@ const Selected = styled.div`
   align-items: center;
   justify-content: space-between;
   color: #1E1E1E;
+  text-transform: capitalize;
   font-family: 'Roboto', sans-serif;
 `
 
 const OptionsList = styled.div`
   display: flex;
   position: absolute;
+  min-width: 100%;
   top: calc( 100% - 3px );
   left: 0;
   z-index: 99;
@@ -133,14 +164,16 @@ const Wrapper = styled.div<ContainerProps>`
 
   ${ OptionsList } {
     height: fit-content;
-    width: 100%;
     transition: max-height 300ms;
+    width: max-content;
+    min-width: 100%;
     max-height: ${ props => props.open ? '500px' : '0' };
     box-shadow: ${ props => props.open ? '0 1px 0 1px #707070' : 'none' };
   }
 
   ${ Selected }{
     ${ ArrowIcon }{
+      margin-left: auto;
       transition: all 300ms;
       transform: rotate( ${ props => props.open ? '180deg' : '0deg' } );
     }
@@ -150,6 +183,7 @@ const Wrapper = styled.div<ContainerProps>`
 
 
 namespace CustomSelect {
+
   export interface CustomSelectState{
     open: boolean,
     selected?: React.ReactElement<Option.Props>

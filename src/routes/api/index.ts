@@ -13,6 +13,8 @@ import notifications from './notifications'
 import polls from './polls'
 import programs from './programs'
 import recover from './recover'
+import regions from './regions'
+import relatories from './relatories'
 import users from './users'
 import videos from './videos'
 
@@ -23,6 +25,7 @@ const ndErrorStream = fs.createWriteStream( 'nd-error.log', {
 const api = Express.Router()
 
 api.use( internals )
+api.use( relatories )
 api.use( news )
 api.use( videos )
 api.use( newspapers )
@@ -34,6 +37,7 @@ api.use( recover )
 api.use( associates )
 api.use( notifications )
 api.use( admins )
+api.use( regions )
 
 api.use( '/public', Express.static( 'public' ) )
 
@@ -182,7 +186,7 @@ api.route( '/associated/:id' )
       } )
 
     if ( !affected ) return res.json( {} )
-    
+
     res.json( {} )
   } )
 
@@ -207,7 +211,7 @@ api.route( '/associates/categories' )
     if ( !excluded ) { /* query.whereNull( 'deleted_at' ) */ }
 
     if ( excluded === 'only' ) { /* query.whereNotNull( 'deleted_at' ) */ }
-  
+
     if ( like ) query.where( 'name', 'like', `%${like}%` )
 
     if ( user )
@@ -279,7 +283,7 @@ api.route( '/associates' )
     const categories = req.query?.categories?.toString().split( ',' ) ?? []
     const favorite: string | null = req.query?.favorite?.toString() || null
     const user: string | null = req.query?.user?.toString() || null
-  
+
     const query = connection( 'associates' )
       .select(
         'associates.*',
@@ -297,11 +301,11 @@ api.route( '/associates' )
       .offset( page * limit )
       .orderBy( order, orderType )
       .groupBy( 'associates.id' )
-  
+
     if ( favorite )
       query.join( 'favorite_associates', 'favorite_associates.associated', 'associates.id' )
         .where( 'favorite_associates.user', '=', user || favorite )
-  
+
     if ( user && !favorite )
       query
         .leftJoin( 'favorite_associates', clause => {
@@ -310,15 +314,15 @@ api.route( '/associates' )
             .andOn( 'favorite_associates.associated', '=', 'associates.id' )
         } )
         .column( connection.raw( 'CASE WHEN favorite_associates.user IS NULL THEN 0 ELSE 1 END AS favorite' ) )
-  
+
     if ( !excluded ) query.whereNull( 'deleted_at' )
-  
+
     if ( excluded === 'only' ) query.whereNotNull( 'deleted_at' )
-  
+
     if ( like ) query.where( 'associates.name', 'like', `%${like}%` )
-  
+
     if ( categories.length ) query.whereIn( 'benefits_categories.id', categories )
-  
+
     return res.json( ( await query ).map( row => ( {
       ...row,
       address: row.address?.split( '|' ) || [],

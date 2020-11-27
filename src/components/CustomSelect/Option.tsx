@@ -17,7 +17,7 @@ class Option extends React.Component<Option.Props>{
 
   render() {
     return (
-      <StyledOption onClick={ this.handleClick }>
+      <StyledOption onClick={ this.handleClick } style={ this.props.style }>
         { this.props.children }
       </StyledOption>
     )
@@ -47,7 +47,8 @@ namespace Option{
   export interface Props extends PropsWithChildren<{}>{
     value?: any,
     handleOptionClick?: ( value:any ) => void,
-    selected?: boolean
+    selected?: boolean,
+    style?: React.CSSProperties
   }
 }
 
