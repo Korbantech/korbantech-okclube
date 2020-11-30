@@ -22,11 +22,9 @@ const ConsolidatedResumCard = ( { backgroudColor, icon: Icon, ...props }:Props )
 
       <Cardfill />
 
-      { !props.amount ? null :
-        <CardAmount>
-          { props.amount }
-        </CardAmount>
-      }
+      <CardAmount>
+        { props.amount ?? 0 }
+      </CardAmount>
 
       { !props.amountLabel ? null :
         <CardAmountLabel>
