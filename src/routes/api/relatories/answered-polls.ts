@@ -58,8 +58,8 @@ route.route( '/answered-polls/count' )
       ).where(
         connection.raw( 'YEAR( polls.created_at ) = YEAR( NOW() )' ),
       )
-      .having( 'week', '>', 0 )
-      .having( 'month', '>', 0 )
+      .having( 'week', '>=', 0 )
+      .having( 'month', '>=', 0 )
       .first()
     return res.json( await query )
   } )
