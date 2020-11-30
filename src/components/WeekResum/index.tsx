@@ -1,24 +1,37 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { FaTicketAlt } from 'react-icons/fa'
 import { ImClipboard } from 'react-icons/im'
 
 import ConsolidatedResumCard from '@components/ConsolidateResumCard'
+import { MONTHS_SHORT } from '@constants/index'
 import styled from 'styled-components'
 
-const WeekResum = () => {
+const WeekResum = ( { answeredPolls }:Props ) => {
+
+  const period = useMemo( ():string => {
+    const date = new Date()
+    date.setDate( date.getDate() - date.getDay()  )
+    const from:Date = new Date( date.getFullYear(), date.getMonth(), date.getDate()  )
+    const to:Date = new Date( date.getFullYear(), date.getMonth(), date.getDate() + 6 )
+
+    return `${from.getDate()} ${MONTHS_SHORT[ from.getMonth() ]}`
+    + ' - '
+    + `${to.getDate()} ${MONTHS_SHORT[ to.getMonth() ]}`
+//8 nov - 15 nov
+  }, [] )
 
   return <CardsContainer>
     <Title> Semanal </Title>
     <ConsolidatedResumCard
-      period="8 nov - 15 nov"
+      period={ period }
       amount={ 234 }
       icon={ () => <FaTicketAlt size={ 30 } color="white" /> }
       backgroudColor='#2D8ADC'
       amountLabel="Cupons Gerados"
     />
     <ConsolidatedResumCard
-      period="8 nov - 15 nov"
-      amount={ 123 }
+      period={ period }
+      amount={ answeredPolls }
       icon={ () => <ImClipboard size={ 30 } color="white" /> }
       backgroudColor='#2D8ADC'
       amountLabel="Enquetes respondidas"
@@ -39,5 +52,9 @@ const CardsContainer = styled.div`
   width: 100%;
   margin-bottom: 40px;
 `
+
+interface Props {
+  answeredPolls: number
+}
 
 export = WeekResum

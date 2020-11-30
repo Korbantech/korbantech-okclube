@@ -1,7 +1,9 @@
 import React from 'react'
 
 import CustomSelect from '@components/CustomSelect'
+
 import { FilterProps } from '.'
+
 
 const ProgramFilter = ( { onSelect, programs }:Props ) => {
 

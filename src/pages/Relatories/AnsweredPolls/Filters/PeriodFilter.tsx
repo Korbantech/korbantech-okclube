@@ -57,7 +57,7 @@ const PeriodFilter = ( { periodType, ...props }:Props )  => {
         const to:Date = new Date( date.getFullYear(), date.getMonth(), date.getDate() + 6 )
 
         const label:string =
-          `${ from.getDate() }/${ MONTHS_SHORT[from.getMonth()] } as `
+          `${ from.getDate() }/${ MONTHS_SHORT[from.getMonth()] } - `
           + `${ to.getDate() }/${ MONTHS_SHORT[to.getMonth()] }`
           + ` de ${date.getFullYear()}`
 

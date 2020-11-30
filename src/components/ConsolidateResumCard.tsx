@@ -94,6 +94,7 @@ const CardPeriod = styled.div`
   font-weight: 400;
   font-size: 16px;
   color: white;
+  text-transform: capitalize;
   width: 100%;
 `
 

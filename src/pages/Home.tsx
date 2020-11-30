@@ -1,16 +1,40 @@
-import React from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 
+import api from '@app/api'
 import MonthlyResum from '@components/MonthlyResum'
 import WeekResum from '@components/WeekResum'
 import styled from 'styled-components'
 
 
 const Home = () => {
+
+  const [ answeredPolls, setAnsweredPolls ] = useState<AnsweredPolls>( { week: 0, month: 0 } )
+
+  const loadData = useCallback( async () => {
+    const { week, month } = await api.get( 'relatories/answered-polls/count' )
+      .then( res => res.data )
+      .catch( err => {
+        console.log( err )
+        return {
+          week: 0,
+          month: 0
+        }
+      } )
+    setAnsweredPolls( {
+      week,
+      month
+    } )
+  }, [] )
+
+  useEffect( () => {
+    loadData()
+  }, [ loadData ] )
+
   return (
     <Container>
       <PageTitle>Resumo Consolidado</PageTitle>
-      <WeekResum />
-      <MonthlyResum />
+      <WeekResum answeredPolls={answeredPolls.week} />
+      <MonthlyResum answeredPolls={answeredPolls.month} />
     </Container>
   )
 }
@@ -26,5 +50,10 @@ const Container = styled.div`
   height: 100%;
   padding-top: 60px;
 `
+
+type AnsweredPolls = {
+  week: number,
+  month: number
+}
 
 export = Home
