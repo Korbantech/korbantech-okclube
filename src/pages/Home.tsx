@@ -12,12 +12,7 @@ const Home = () => {
 
   const loadData = useCallback( async () => {
     const { week, month } = await api.get( 'relatories/answered-polls/count' )
-      .then( res => {
-        return {
-          week: res.data.week ?? 0,
-          month: res.data.month ?? 0,
-        }
-      } )
+      .then( res => res.data )
       .catch( err => {
         console.log( err )
         return {
