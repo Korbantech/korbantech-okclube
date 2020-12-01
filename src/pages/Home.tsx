@@ -9,8 +9,25 @@ import styled from 'styled-components'
 const Home = () => {
 
   const [ answeredPolls, setAnsweredPolls ] = useState<AnsweredPolls>( { week: 0, month: 0 } )
+  const [ generatedCoupons, setGeneratedCoupons ] = useState<GeneratedCoupons>( { week: 0, month: 0 } )
 
-  const loadData = useCallback( async () => {
+  const loadCouponsData = useCallback( async () => {
+    const { week, month } = await api.get( 'relatories/coupons/count' )
+      .then( res => res.data )
+      .catch( err => {
+        console.log( err )
+        return {
+          week: 0,
+          month: 0
+        }
+      } )
+    setGeneratedCoupons( {
+      week,
+      month
+    } )
+  }, [] )
+
+  const loadAnsweredPollsData = useCallback( async () => {
     const { week, month } = await api.get( 'relatories/answered-polls/count' )
       .then( res => res.data )
       .catch( err => {
@@ -27,14 +44,15 @@ const Home = () => {
   }, [] )
 
   useEffect( () => {
-    loadData()
-  }, [ loadData ] )
+    loadCouponsData()
+    loadAnsweredPollsData()
+  }, [ loadCouponsData, loadAnsweredPollsData ] )
 
   return (
     <Container>
       <PageTitle>Resumo Consolidado</PageTitle>
-      <WeekResum answeredPolls={answeredPolls.week} />
-      <MonthlyResum answeredPolls={answeredPolls.month} />
+      <WeekResum answeredPolls={answeredPolls.week} generatedCoupons={ generatedCoupons.week } />
+      <MonthlyResum answeredPolls={answeredPolls.month} generatedCoupons={ generatedCoupons.month } />
     </Container>
   )
 }
@@ -52,6 +70,10 @@ const Container = styled.div`
 `
 
 type AnsweredPolls = {
+  week: number,
+  month: number
+}
+type GeneratedCoupons = {
   week: number,
   month: number
 }

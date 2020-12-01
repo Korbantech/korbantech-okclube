@@ -6,7 +6,7 @@ import ConsolidatedResumCard from '@components/ConsolidateResumCard'
 import styled from 'styled-components'
 import { MONTHS } from '@constants/index'
 
-const MonthlyResum = ( { answeredPolls }:Props ) => {
+const MonthlyResum = ( { answeredPolls, generatedCoupons }:Props ) => {
 
   const currentMonth = useMemo( ():string => {
     return MONTHS[ new Date().getMonth() ].toString()
@@ -16,7 +16,7 @@ const MonthlyResum = ( { answeredPolls }:Props ) => {
     <Title> Mensal </Title>
     <ConsolidatedResumCard
       period={ currentMonth }
-      amount={ 234 }
+      amount={ generatedCoupons }
       icon={ () => <FaTicketAlt size={ 30 } color="white" /> }
       backgroudColor='#2D8ADC'
       amountLabel="Cupons Gerados"
@@ -47,6 +47,7 @@ const CardsContainer = styled.div`
 
 interface Props {
   answeredPolls: number
+  generatedCoupons: number
 }
 
 export = MonthlyResum

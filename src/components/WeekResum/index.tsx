@@ -6,7 +6,7 @@ import ConsolidatedResumCard from '@components/ConsolidateResumCard'
 import { MONTHS_SHORT } from '@constants/index'
 import styled from 'styled-components'
 
-const WeekResum = ( { answeredPolls }:Props ) => {
+const WeekResum = ( { answeredPolls, generatedCoupons }:Props ) => {
 
   const period = useMemo( ():string => {
     const date = new Date()
@@ -17,14 +17,14 @@ const WeekResum = ( { answeredPolls }:Props ) => {
     return `${from.getDate()} ${MONTHS_SHORT[ from.getMonth() ]}`
     + ' - '
     + `${to.getDate()} ${MONTHS_SHORT[ to.getMonth() ]}`
-//8 nov - 15 nov
+
   }, [] )
 
   return <CardsContainer>
     <Title> Semanal </Title>
     <ConsolidatedResumCard
       period={ period }
-      amount={ 234 }
+      amount={ generatedCoupons }
       icon={ () => <FaTicketAlt size={ 30 } color="white" /> }
       backgroudColor='#2D8ADC'
       amountLabel="Cupons Gerados"
@@ -54,7 +54,8 @@ const CardsContainer = styled.div`
 `
 
 interface Props {
-  answeredPolls: number
+  answeredPolls: number,
+  generatedCoupons: number
 }
 
 export = WeekResum

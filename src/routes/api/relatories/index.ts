@@ -1,9 +1,11 @@
 import Express from 'express'
 
-import AnsweredPolls from './answered-polls'
+import answeredPolls from './answered-polls'
+import coupons from './coupons'
 
 const relatories = Express.Router()
 
-relatories.use( '/relatories', AnsweredPolls )
+relatories.use( '/relatories', answeredPolls )
+relatories.use( '/relatories', coupons )
 
 export default relatories

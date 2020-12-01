@@ -5,6 +5,7 @@ import fs from 'fs'
 import connection from '../../helpers/connection'
 import admins from './admins'
 import associates from './associates'
+import coupons from './coupons'
 import internals from './internals'
 import mail from './mail'
 import news from './news'
@@ -38,6 +39,7 @@ api.use( associates )
 api.use( notifications )
 api.use( admins )
 api.use( regions )
+api.use( coupons )
 
 api.use( '/public', Express.static( 'public' ) )
 

@@ -5,8 +5,9 @@ import useGoTo from '@hooks/useGoTo'
 import usePagination from '@hooks/usePagination'
 // import useRequest from '@hooks/useRequest'
 // import api from '@app/api'
-import styled from 'styled-components'
 import useRequest from '@hooks/useRequest'
+import styled from 'styled-components'
+
 import { Filters } from './Filters'
 
 
@@ -118,8 +119,10 @@ const PageTitle = styled.h1`
 
 const Container = styled.div`
   width: 100%;
-  height: 100%;
   padding-top: 60px;
+  height: 90%;
+  display: flex;
+  flex-direction: column;
 `
 
 export = AnsweredPolls
