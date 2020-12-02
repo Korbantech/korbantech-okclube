@@ -5,3 +5,4 @@ public/magazines
 /docs
 *.log
 /.env
+public/users/images

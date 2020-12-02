@@ -57,7 +57,7 @@ api.get( '/check/:id', async ( req, res ) => {
 
   if ( !user?.document ) return res.status( 422 ).json( { message: 'no document' } )
 
-  const document = user.document.replace( /(\.|-)/i, '' )
+  const document = user.document.replace( /\D/ig, '' )
 
   const url = 'https://sac.ndonline.com.br/clubedoassinante/rest/clube/dados/identmf/' + document
   let data
@@ -78,16 +78,36 @@ api.get( '/check/:id', async ( req, res ) => {
 
   data = data.shift()
 
-  if ( data.codigoDaPessoaAssinante === 0 ) return res.status( 404 ).json()
+  if ( data.codigoDaPessoaAssinante === 0 ) {
+    await connection( 'users_nd_info' ).update( {
+      code: null,
+      valid: null
+    } ).where( 'user', id ).then().catch( console.log )
+    return res.status( 404 ).json()
+  }
 
-  await connection( 'users_nd_info' ).delete().where( 'user', id )
-
-  await connection( 'users_nd_info' ).insert( {
-    user,
-    code: data.codigoDaPessoaAssinante,
-    document: data.identMF,
-    valid: data.dataDeValidade
+  const prevInfo = await connection( 'users_nd_info' ).where( 'user', id ).first().then( res => res ).catch( err => {
+    console.log( err )
   } )
+
+  if( prevInfo ) {
+    await connection( 'users_nd_info' ).update( {
+      code: data.codigoDaPessoaAssinante,
+      document: data.identMF,
+      valid: data.dataDeValidade
+    } ).where( 'user', id ).then().catch( err => {
+      console.log( err )
+    } )
+  }else{
+    await connection( 'users_nd_info' ).insert( {
+      user: user.id,
+      code: data.codigoDaPessoaAssinante,
+      document: data.identMF,
+      valid: data.dataDeValidade
+    } ).then().catch( err => {
+      console.log( err )
+    } )
+  }
 
   const info = await connection( 'users' )
     .select( [ 'users.*', 'users_nd_info.*', 'users_meta_info.birthday', 'users_photos.photo' ] )
@@ -105,7 +125,7 @@ api.get( '/check/:id', async ( req, res ) => {
 } )
 
 api.get( '/register/:cpf', async ( req, res ) => {
-  const document = req.params?.cpf?.toString().replace( /\.|-/, '' ) || ''
+  const document = req.params?.cpf?.toString().replace( /\D/gi, '' ) || ''
 
   const user = await connection( 'users' )
     .select( '*' )
