@@ -93,10 +93,10 @@ route.put( async ( req, res ) => {
     facebook_uri: req.body.facebook,
     twitter_uri: req.body.twitter,
     instagram_uri: req.body.instagram,
-    birthday: new Date( req.body.birthday )  
+    birthday: new Date( req.body.birthday )
   }
 
-  if ( !id ) 
+  if ( !id )
     await connection( 'users' ).insert( user )
       .then( ( [ userId ] ) => {
         id = userId
@@ -138,6 +138,11 @@ route.put( async ( req, res ) => {
     else {
       if ( !await File.exists( 'public/users/images' ) )
         await Dir.make( 'public/users/images', { recursive: true } )
+
+      console.log(
+        await File.exists( 'public/users/images' ),
+        await Dir.make( 'public/users/images', { recursive: true } )
+      )
 
       try {
 

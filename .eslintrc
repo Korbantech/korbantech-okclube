@@ -4,6 +4,8 @@
     "consistent-return": "off",
     "no-await-in-loop": "off",
     "dot-notation": "off",
-    "max-len": [ "warn", 120 ]
+    "max-len": [ "warn", 120 ],
+    "array-bracket-newline": "off",
+    "array-element-newline": "off"
   }
 }
