@@ -13,6 +13,20 @@
       "database": "grupo_nd",
       "username": "root",
       "password": "root"
+    },
+    {
+      "mysqlOptions": {
+        "authProtocol": "default"
+      },
+      "previewLimit": 50,
+      "server": "korbantech-sites.c88zzn3bpsms.us-east-1.rds.amazonaws.com",
+      "port": 3306,
+      "driver": "MySQL",
+      "name": "nd",
+      "group": "prod",
+      "username": "api_nd",
+      "database": "api_nd_homolog",
+      "password": "homolog@2k20"
     }
   ]
 }

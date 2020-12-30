@@ -63,7 +63,7 @@ const downloadEdition = encapsulate( async ( ed: string, opts: any, close = fals
     mv( pdfpath, outputFullpath, error => error ? reject( error ) : resolve() )
   } )
 
-  const url = `${opts.cdn}/${name}`
+  const url = `${opts.cdn}${opts.cdn.endsWith( '/' ) ? '' : '/'}${name}`
 
   const hasEditionInDb = !!await connection( 'newspaper_editions' ).where( 'ed_maven_number', ed ).first()
 
