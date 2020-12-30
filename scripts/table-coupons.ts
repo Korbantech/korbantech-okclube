@@ -7,7 +7,7 @@ connection
     table.bigInteger( 'user' ).unsigned().references( 'users.id' )
     table.bigInteger( 'associate' ).unsigned().references( 'associate.id' )
     table.string( 'coupon' )
-    table.timestamp( 'created_at' ).defaultTo( connection.raw('CURRENT_TIMESTAMP()' ) )
+    table.timestamp( 'created_at' ).defaultTo( connection.raw( 'CURRENT_TIMESTAMP()' ) )
   } )
   .then( () => { console.log( 'create' ) } )
   .catch( ( { message } ) => { console.error( message ) } )

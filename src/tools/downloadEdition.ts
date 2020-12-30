@@ -72,7 +72,9 @@ const downloadEdition = encapsulate( async ( ed: string, opts: any ) => {
   if ( hasEditionInDb )
     await connection( 'newspaper_editions' )
       .where( 'ed_maven_number', ed )
-      .update( {} )
+      .update( {
+        updated_at: connection.fn.now()
+      } )
 
   else
     await connection()
