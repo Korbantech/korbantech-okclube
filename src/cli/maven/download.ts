@@ -13,6 +13,6 @@ download.option( '--no-notification', 'send notification to users', false )
 download.option( '--notification-title <title>', 'notification title', 'Jornal' )
 download.option( '--notification-message <message>', 'notification message', 'Edição {screening_date} lançada' )
 
-download.action( async ( ed: string ) => downloadEdition( ed, download.opts() ) )
+download.action( async ( ed: string ) => downloadEdition( ed, download.opts(), true ) )
 
 export default download

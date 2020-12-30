@@ -21,7 +21,7 @@ const encapsulate = <T extends ( ...args: any ) => Promise<any>>( callback: T ):
   } ) as T
 }
 
-const downloadEdition = encapsulate( async ( ed: string, opts: any ) => {
+const downloadEdition = encapsulate( async ( ed: string, opts: any, close = false ) => {
   const tempDir = await Dir.temp( 'pdf-tmp-' )
   const { edition, pages } = await Maven.fullEdition( ed )
   const fullTempPath = path.join( tempDir, edition.ed )
@@ -116,6 +116,8 @@ const downloadEdition = encapsulate( async ( ed: string, opts: any ) => {
       filter: user => ids.includes( user.id ),
       notification: { title, message }
     } )
+
+  if ( close ) connection.destroy()
 } )
 
 export default downloadEdition

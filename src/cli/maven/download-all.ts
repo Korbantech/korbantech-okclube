@@ -1,3 +1,4 @@
+import connection from '@helpers/connection'
 import Maven from '@helpers/maven'
 import downloadEdition from '@tools/downloadEdition'
 import { Command } from 'commander'
@@ -23,12 +24,12 @@ const encapsulate = <T extends ( ...args: any ) => Promise<any>>( callback: T ):
 downloadAll.action( encapsulate( async () => {
   const { data: editions } = await Maven.editions()
 
-  const promise = editions?.reduce( async ( promise, edition ) => {
+  await editions?.reduce( async ( promise, edition ) => {
     console.log( `Download ${edition.ed}` )
     return promise.then( () => downloadEdition( edition.ed, downloadAll.opts() ) )
   }, Promise.resolve() )
 
-  await promise
+  connection.destroy()
 
   console.log( 'Done' )
 } ) )
