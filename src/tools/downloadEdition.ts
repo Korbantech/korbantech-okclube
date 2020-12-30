@@ -25,7 +25,7 @@ const downloadEdition = encapsulate( async ( ed: string, opts: any, close = fals
   const tempDir = await Dir.temp( 'pdf-tmp-' )
   const { edition, pages } = await Maven.fullEdition( ed )
   const fullTempPath = path.join( tempDir, edition.ed )
-  const name = `${ed}.pdf`
+  const name = `${ed}-${Date.now().toString( 36 )}.pdf`
   const outputFullpath = path.join( opts.output, name )
 
   if ( await exists( outputFullpath ) && !opts.force )
@@ -73,6 +73,8 @@ const downloadEdition = encapsulate( async ( ed: string, opts: any, close = fals
     await connection( 'newspaper_editions' )
       .where( 'ed_maven_number', ed )
       .update( {
+        pdf_url: url,
+        pdf_file_path: outputFullpath,
         updated_at: connection.fn.now()
       } )
 
