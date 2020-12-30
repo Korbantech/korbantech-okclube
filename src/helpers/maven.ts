@@ -9,6 +9,18 @@ import PDF from '../tools/merge-pdfs'
 
 namespace Maven {
   export const api = Axios.create( {} )
+  export const info = async () => {
+    return api.get<Magazine.Response>( '' )
+      .then( response => {
+        const client = response.data.app.Cliente.shift()
+        if ( !client ) return Promise.reject( new Error( '' ) )
+        const magazine = client.Revista.shift()
+        if ( !magazine ) return Promise.reject( new Error( '' ) )
+        const edition = magazine.Edicao.shift()
+        if ( !edition ) return Promise.reject( new Error( '' ) )
+        return { client: client.$, magazine: magazine.$, edition: edition.$ }
+      } )
+  }
   export const magazines = async ( year?: number ) => {
     try {
       const response = await api.get<Magazine.Response>( '', { params: { ano: year } } )
@@ -37,21 +49,20 @@ namespace Maven {
       return Promise.resolve( { ...response, data } )
     } catch ( e ) { return Promise.reject( e ) }
   }
+  export const fullEdition = async ( ed: string ) => {
+    const response = await api.get<Edition.Response>( '', { params: { ed } } )
+    const client = response.data.app.Cliente.shift()
+    if ( !client ) throw new Error()
+    const magazine = client.Revista.shift()
+    if ( !magazine ) throw new Error()
+    const edition = magazine.Edicao.shift()
+    if ( !edition ) throw new Error()
+    const pages = edition.Paginas.shift()?.Pagina.map( page => page.$ ) ?? []
+    return { client: client.$, magazine: magazine.$, edition: { ...edition.$, ...edition }, pages }
+  }
   export const edition = async ( ed: string ) => {
-    try {
-      const response = await api.get<Edition.Response>( 'http://v4.maven.com.br/app/v3.jsp', { params: { ed } } )
-      const clients = response.data.app.Cliente
-      const client = clients.shift()
-      if ( !client ) throw new Error()
-      const magazines = client.Revista
-      const magazine = magazines.shift()
-      if ( !magazine ) throw new Error()
-      const editions = magazine.Edicao
-      const edition = editions.shift()
-      if ( !edition ) throw new Error()
-      const data = edition.Paginas.shift()?.Pagina.map( page => page.$.pdf ) ?? []
-      return Promise.resolve( { ...response, data } )
-    } catch ( e ) { return Promise.reject( e ) }
+    return fullEdition( ed )
+      .then( edition => ( { data: edition.pages.map( page => page.pdf ) } ) )
   }
   export const download = ( ed: string ) => {
     const emitter = new Emitter<Download.Events>();
