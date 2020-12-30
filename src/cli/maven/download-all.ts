@@ -9,12 +9,8 @@ downloadAll.option( '--cdn <url>', 'set cdn url', 'http://d38iurctu47dce.cloudfr
 downloadAll.option( '-f, --force', 'force download', false )
 downloadAll.option( '-o, --output <url>', 'set output of pdf', path.resolve( 'public', 'magazines' ) )
 downloadAll.option( '--notification', 'send notification to users', false )
-downloadAll.option( '--notification-title', 'notification title', 'Jornal' )
-downloadAll.option(
-  '--notification-message',
-  'notification message',
-  'Edição {screening_date.format( \'d/m/Y\' )} lançada'
-)
+downloadAll.option( '--notification-title <title>', 'notification title', 'Jornal' )
+downloadAll.option( '--notification-message <message>', 'notification message', 'Edição {screening_date} lançada' )
 
 const encapsulate = <T extends ( ...args: any ) => Promise<any>>( callback: T ): T => {
   return ( ( ...args: any[] ) => {

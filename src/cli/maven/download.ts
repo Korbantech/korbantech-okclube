@@ -10,12 +10,8 @@ download.option( '--cdn <url>', 'set cdn url', 'http://d38iurctu47dce.cloudfront
 download.option( '-f, --force', 'force download', false )
 download.option( '-o, --output <url>', 'set output of pdf', path.resolve( 'public', 'magazines' ) )
 download.option( '--no-notification', 'send notification to users', false )
-download.option( '--notification-title', 'notification title', 'Jornal' )
-download.option(
-  '--notification-message',
-  'notification message',
-  'Edição {screening_date.format( \'d/m/Y\' )} lançada'
-)
+download.option( '--notification-title <title>', 'notification title', 'Jornal' )
+download.option( '--notification-message <message>', 'notification message', 'Edição {screening_date} lançada' )
 
 download.action( async ( ed: string ) => downloadEdition( ed, download.opts() ) )
 
