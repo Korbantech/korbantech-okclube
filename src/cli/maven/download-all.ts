@@ -30,8 +30,8 @@ downloadAll.action( encapsulate( async () => {
   }, Promise.resolve() )
 
   connection.destroy()
-
   console.log( 'Done' )
+  process.exit()
 } ) )
 
 export default downloadAll

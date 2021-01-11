@@ -50,7 +50,7 @@ namespace Maven {
     } catch ( e ) { return Promise.reject( e ) }
   }
   export const fullEdition = async ( ed: string ) => {
-    const response = await api.get<Edition.Response>( '', { params: { ed } } )
+    const response = await api.get<Edition.Response>( '', { params: { ed, cache: Date.now() } } )
     const client = response.data.app.Cliente.shift()
     if ( !client ) throw new Error()
     const magazine = client.Revista.shift()

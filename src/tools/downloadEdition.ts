@@ -9,6 +9,7 @@ import fs from 'fs'
 import { mkdir, stat, rmdir } from 'fs/promises'
 import mv from 'mv'
 import path from 'path'
+import PDFDocument from 'pdfkit'
 
 const exists = ( path: fs.PathLike ) =>
   stat( path ).then( () => true, () => false )
@@ -27,7 +28,6 @@ const downloadEdition = encapsulate( async ( ed: string, opts: any, close = fals
   const fullTempPath = path.join( tempDir, edition.ed )
   const name = `${ed}-${Date.now().toString( 36 )}.pdf`
   const outputFullpath = path.join( opts.output, name )
-
   if ( await exists( outputFullpath ) && !opts.force )
     throw new Error( 'file exists' )
 
@@ -40,6 +40,24 @@ const downloadEdition = encapsulate( async ( ed: string, opts: any, close = fals
     await mkdir( opts.output, { recursive: true } )
 
   const promises = pages.map( async ( page, index ) => {
+    if ( opts.image )
+      return Axios.get<fs.ReadStream>( page.img, { responseType: 'stream' } )
+        .then( response => {
+          const filepath = path.join( fullTempPath, `${index + 1}.jpg` )
+          const writer = fs.createWriteStream( filepath )
+          response.data.pipe( writer )
+          type Result = { filepath: string, page: typeof page }
+          return new Promise<Result>( ( resolve, reject ) => {
+            writer.on( 'close', () => {
+              resolve( { filepath, page } )
+            } )
+            writer.on( 'error', () => reject( new Error() ) )
+          } )
+        } )
+        .catch( reason => {
+          console.log( page.pdf, reason.message )
+          process.exit( 1 )
+        } )
     return Axios.get<fs.ReadStream>( page.pdf, { responseType: 'stream' } )
       .then( response => {
         const filepath = path.join( fullTempPath, `${index + 1}.pdf` )
@@ -53,15 +71,36 @@ const downloadEdition = encapsulate( async ( ed: string, opts: any, close = fals
           writer.on( 'error', () => reject( new Error() ) )
         } )
       } )
+      .catch( reason => {
+        console.log( page.pdf, reason.message )
+        process.exit( 1 )
+      } )
   } )
 
-  const infoPages = await Promise.all( promises )
-  const pathPages = infoPages.map( page => page.filepath )
-  const pdfpath = await PDF.generate( ...pathPages )
+  let infoPages = await Promise.all( promises )
+  if ( opts.image ) {
+    const doc = new PDFDocument()
+    const stream = fs.createWriteStream( outputFullpath )
+    doc.pipe( stream )
+    infoPages.forEach( ( { filepath, page } ) => {
+      doc.addPage().image( filepath, {
+        height: Number( page.height ),
+        width: Number( page.width ),
+      } )
+    } )
+    doc.end()
+    await new Promise<void>( ( resolve, reject ) => {
+      stream.on( 'end', () => resolve() )
+      stream.on( 'error', reject )
+    } )
+  } else {
+    const pathPages = infoPages.map( page => page.filepath )
+    const pdfpath = await PDF.generate( ...pathPages )
 
-  await new Promise<void>( ( resolve, reject ) => {
-    mv( pdfpath, outputFullpath, error => error ? reject( error ) : resolve() )
-  } )
+    await new Promise<void>( ( resolve, reject ) => {
+      mv( pdfpath, outputFullpath, error => error ? reject( error ) : resolve() )
+    } )
+  }
 
   const url = `${opts.cdn}${opts.cdn.endsWith( '/' ) ? '' : '/'}${name}`
 
@@ -79,7 +118,7 @@ const downloadEdition = encapsulate( async ( ed: string, opts: any, close = fals
       } )
 
   else
-    await connection()
+    await connection( 'newspaper_editions' )
       .insert( {
         ed_maven_number: ed,
         png_url: edition.CapaEdicao.shift(),
@@ -119,7 +158,12 @@ const downloadEdition = encapsulate( async ( ed: string, opts: any, close = fals
       notification: { title, message }
     } )
 
-  if ( close ) connection.destroy()
+  console.log( 'send' )
+
+  if ( close ) {
+    connection.destroy()
+    process.exit()
+  }
 } )
 
 export default downloadEdition
