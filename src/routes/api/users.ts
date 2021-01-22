@@ -214,6 +214,10 @@ users.route( '/users/:id' )
       .column( connection.raw( 'users_meta_info.instagram_uri AS instagram' ) )
       .where( 'users.id', req.params.id )
       .first()
+      .then( data => {
+        delete data.pass
+        return data
+      } )
       .then( res.json.bind( res ) ).catch( next )
   } )
   .patch( async ( req, res, next ) => {
@@ -225,8 +229,6 @@ users.route( '/users/:id' )
         .first()
 
       if ( !user ) return res.status( 404 ).json()
-
-      console.log( req.body, user )
 
       if ( req.body.document !== user.document && validate( req.body.document ) ) {
         const response = await axios.get(
@@ -258,6 +260,8 @@ users.route( '/users/:id' )
         .column( connection.raw( 'users_meta_info.instagram_uri AS instagram' ) )
         .where( 'users.id', id )
         .first()
+
+      delete data.pass
 
       res.json( data )
     } catch ( e ) { next( e ) }
@@ -306,7 +310,12 @@ users.route( '/users' ).get( ( req, res, next ) => {
     .orWhere( 'users_nd_info.code', 'like', `%${like}%` )
     .orWhere( 'users.mail', 'like', `%${like}%` )
 
-  query.then( res.json.bind( res ) ).catch( next )
+  query
+    .then( results => results.map( result => {
+      delete result.pass
+      return result
+    } ) )
+    .then( res.json.bind( res ) ).catch( next )
 } )
 
 export default users
