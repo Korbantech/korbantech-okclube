@@ -21,6 +21,8 @@ import PollsList from '@pages/PollsList'
 import AnsweredPolls from '@pages/Relatories/AnsweredPolls'
 import Coupons from '@pages/Relatories/Coupons'
 import SignIn from '@pages/SignIn'
+import UserEdit from '@pages/UserEdit'
+import Users from '@pages/Users'
 import logo from '@public/assets/grupo-nd.png'
 import { userSignOut } from '@root/actions/userSign'
 import store from '@store/index'
@@ -97,6 +99,7 @@ const Dashboard = () =>
         <LateralMenu.Item text='Criar' to='/notifications/create' />
       </LateralMenu.Item> */}
       <LateralMenu.Item icon={FaUsers} text='Parceiros' to='/associates' />
+      <LateralMenu.Item icon={FaUsers} text='Usuários' to='/users' />
 
       <LateralMenu.Item icon={FaUsers} text='Relatórios'>
         <LateralMenu.Item text="Cupons" to="/relatories/coupons"/>
@@ -116,13 +119,19 @@ const Dashboard = () =>
         <Route exact path='/polls/create' component={PollCreate} />
         <Route exact path='/polls/:poll' component={PollEdit} />
         <Route exact path='/polls/:poll/details' component={PollDetails} />
+
         <Route exact path='/notifications' component={NotificationsList} />
         <Route exact path='/notifications/create' component={NotificationCreate} />
+
         <Route exact path='/associates' component={AssociatesList} />
         <Route exact path='/associates/create' component={AssociatedCreate} />
         <Route exact path='/associates/:associated' component={AssociatedEdit} />
+
         <Route exact path='/relatories/coupons' component={ Coupons } />
         <Route exact path='/relatories/polls' component={ AnsweredPolls } />
+
+        <Route exact path='/users' component={Users} />
+        <Route exact path='/users/:user' component={UserEdit} />
       </Switch>
     </PageContent>
   </Grid>

@@ -79,13 +79,20 @@ const downloadEdition = encapsulate( async ( ed: string, opts: any, close = fals
 
   let infoPages = await Promise.all( promises )
   if ( opts.image ) {
-    const doc = new PDFDocument()
+    const firstPage = infoPages[0].page
+    const doc = new PDFDocument( {
+      margin: 0,
+      autoFirstPage: false,
+      size: [ Number( firstPage.width ), Number( firstPage.height ) ]
+    } )
     const stream = fs.createWriteStream( outputFullpath )
     doc.pipe( stream )
     infoPages.forEach( ( { filepath, page } ) => {
       doc.addPage().image( filepath, {
+        align: 'center',
+        valign: 'center',
         height: Number( page.height ),
-        width: Number( page.width ),
+        width: Number( page.width )
       } )
     } )
     doc.end()

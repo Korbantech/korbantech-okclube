@@ -79,34 +79,41 @@ api.get( '/check/:id', async ( req, res ) => {
   data = data.shift()
 
   if ( data.codigoDaPessoaAssinante === 0 ) {
-    await connection( 'users_nd_info' ).update( {
-      code: null,
-      valid: null
-    } ).where( 'user', id ).then().catch( console.log )
+    await connection( 'users_nd_info' )
+      .update( {
+        code: null,
+        valid: null
+      } )
+      .where( 'user', id )
+      .catch( console.error )
     return res.status( 404 ).json()
   }
 
-  const prevInfo = await connection( 'users_nd_info' ).where( 'user', id ).first().then( res => res ).catch( err => {
-    console.log( err )
-  } )
+  const prevInfo = await connection( 'users_nd_info' )
+    .where( 'user', id )
+    .first()
+    .then( res => res )
+    .catch( console.error )
 
   if( prevInfo ) {
     await connection( 'users_nd_info' ).update( {
       code: data.codigoDaPessoaAssinante,
       document: data.identMF,
       valid: data.dataDeValidade
-    } ).where( 'user', id ).then().catch( err => {
-      console.log( err )
     } )
-  }else{
-    await connection( 'users_nd_info' ).insert( {
-      user: user.id,
-      code: data.codigoDaPessoaAssinante,
-      document: data.identMF,
-      valid: data.dataDeValidade
-    } ).then().catch( err => {
-      console.log( err )
-    } )
+      .where( 'user', id )
+      .then()
+      .catch( console.error )
+  } else {
+    await connection( 'users_nd_info' )
+      .insert( {
+        user: user.id,
+        code: data.codigoDaPessoaAssinante,
+        document: data.identMF,
+        valid: data.dataDeValidade
+      } )
+      .then()
+      .catch( console.error )
   }
 
   const info = await connection( 'users' )

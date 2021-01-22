@@ -39,12 +39,12 @@ app.set( 'environment', IS_PRODUCTION_ENVIRONMENT ? 'production' : 'development'
 app.set( 'port', args.port ?? 80 )
 
 app.use( morgan( app.get( 'log type' ), IS_PRODUCTION_ENVIRONMENT ? { stream } : undefined ) )
-app.use( ( req, res, next ) => {
-  // console.log( req.protocol, req.headers )
-  if ( req.protocol === 'http' && req.headers['x-forwarded-proto'] !== 'https' && IS_PRODUCTION_ENVIRONMENT )
-    return res.redirect( 308, `https://${req.hostname}${req.originalUrl}` )
-  else next()
-} )
+// app.use( ( req, res, next ) => {
+//   // console.log( req.protocol, req.headers )
+//   if ( req.protocol === 'http' && req.headers['x-forwarded-proto'] !== 'https' && IS_PRODUCTION_ENVIRONMENT )
+//     return res.redirect( 308, `https://${req.hostname}${req.originalUrl}` )
+//   else next()
+// } )
 app.use( cors() )
 app.use( bodyparser.urlencoded( { extended: true } ) )
 app.use( bodyparser.json( { limit: '100mb' } ) )
@@ -57,7 +57,7 @@ app.use( vhost( /^dashboard\..*/, dashboard ) )
 app.use( '/public', Express.static( 'public' ) )
 
 app.listen( app.get( 'port' ), () => {
-  connection.raw( 'SET SESSION sql_mode=( SELECT REPLACE( @@sql_mode, \'ONLY_FULL_GROUP_BY\', \'\' ) );' )
+  connection.raw( 'SET GLOBAL sql_mode=( SELECT REPLACE( @@sql_mode, \'ONLY_FULL_GROUP_BY\', \'\' ) );' )
     .then( () => {
       console.log( `running server in port ${app.get( 'port' )} usign envoriment mode ${app.get( 'environment' )}` )
     } )

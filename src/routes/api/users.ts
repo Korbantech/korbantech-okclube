@@ -1,6 +1,8 @@
 /* eslint-disable array-element-newline */
 /* eslint-disable array-bracket-newline */
+import axios, { AxiosError } from 'axios'
 import Express from 'express'
+import { validate } from 'gerador-validador-cpf'
 
 import connection from '../../helpers/connection'
 import Dir from '../../models/Dir'
@@ -77,7 +79,8 @@ route.put( async ( req, res ) => {
   const user = {
     mail: req.body.mail,
     name: req.body.name,
-    pass: req.body.pass
+    pass: req.body.pass,
+    partnerships_network_id: req.body.partnerships_network_id || req.body.partnershipsNetworkId
   }
 
   const ndInfo = {
@@ -190,6 +193,120 @@ route.delete( async ( req, res ) => {
   await connection( 'users' ).delete().where( 'id', id )
 
   res.json()
+} )
+
+users.get( '/users/external/:document', ( req, res ) => {
+  const url = 'https://sac.ndonline.com.br/clubedoassinante/rest/clube/dados/identmf/' + req.params.document
+  axios.get( url )
+    .then( response => res.json( response.data ) ) 
+    .catch( ( reason: AxiosError ) => res.json( reason ) )
+} )
+
+users.route( '/users/:id' )
+  .get( ( req, res, next ) => {
+    connection( 'users' )
+      .select( [ 'users.*', 'users_nd_info.*', 'users_meta_info.birthday', 'users_photos.photo' ] )
+      .join( 'users_nd_info', 'users_nd_info.user', 'users.id' )
+      .leftJoin( 'users_meta_info', 'users_meta_info.user', 'users.id' )
+      .leftJoin( 'users_photos', 'users_photos.user', 'users.id' )
+      .column( connection.raw( 'users_meta_info.facebook_uri AS facebook' ) )
+      .column( connection.raw( 'users_meta_info.twitter_uri AS twitter' ) )
+      .column( connection.raw( 'users_meta_info.instagram_uri AS instagram' ) )
+      .where( 'users.id', req.params.id )
+      .first()
+      .then( res.json.bind( res ) ).catch( next )
+  } )
+  .patch( async ( req, res, next ) => {
+    try {
+      let id = Number( req.params.id )
+
+      const user = await connection( 'users' ).select( [ 'users_nd_info.document' ] ).where( 'id', id )
+        .join( 'users_nd_info', 'users_nd_info.user', 'users.id' )
+        .first()
+
+      if ( !user ) return res.status( 404 ).json()
+
+      console.log( req.body, user )
+
+      if ( req.body.document !== user.document && validate( req.body.document ) ) {
+        const response = await axios.get(
+          `https://sac.ndonline.com.br/clubedoassinante/rest/clube/dados/identmf/${req.body.document}`
+        )
+        await connection( 'users_nd_info' ).update( {
+          code: response.data.codigoDaPessoaAssinante,
+          document: req.body.document,
+          valid: response.data.dataDeValidade
+        } ).where( 'user', id )
+      }
+  
+      await connection( 'users' )
+        .where( 'id', '=', id )
+        .update( {
+          mail: req.body.mail,
+          name: req.body.name,
+          pass: req.body.pass,
+          partnerships_network_id: req.body.partnerships_network_id || req.body.partnershipsNetworkId
+        } )
+
+      const data = await connection( 'users' )
+        .select( [ 'users.*', 'users_nd_info.*', 'users_meta_info.birthday', 'users_photos.photo' ] )
+        .join( 'users_nd_info', 'users_nd_info.user', 'users.id' )
+        .leftJoin( 'users_meta_info', 'users_meta_info.user', 'users.id' )
+        .leftJoin( 'users_photos', 'users_photos.user', 'users.id' )
+        .column( connection.raw( 'users_meta_info.facebook_uri AS facebook' ) )
+        .column( connection.raw( 'users_meta_info.twitter_uri AS twitter' ) )
+        .column( connection.raw( 'users_meta_info.instagram_uri AS instagram' ) )
+        .where( 'users.id', id )
+        .first()
+
+      res.json( data )
+    } catch ( e ) { next( e ) }
+  } )
+  .delete( async ( req, res ) => {
+    if ( !req.params.id ) return res.status( 422 ).json()
+    await connection( 'users_nd_info' ).delete().where( 'user', req.params.id )
+    await connection( 'favorite_associates' ).delete().where( 'user', req.params.id )
+    await connection( 'favorite_programs' ).delete().where( 'user', req.params.id )
+    await connection( 'favorite_categories' ).delete().where( 'user', req.params.id )
+    await connection( 'polls_responses' ).delete().where( 'user', req.params.id )
+    await connection( 'users_meta_info' ).delete().where( 'user', req.params.id )
+    await connection( 'users_photos' ).delete().where( 'user', req.params.id )
+    await connection( 'users' ).delete().where( 'id', req.params.id )
+    res.json()
+  } )
+
+users.route( '/users' ).get( ( req, res, next ) => {
+  const limit = parseInt( req.query?.per?.toString() || '30' )
+  const page = parseInt( req.query?.page?.toString() || '0' )
+  const order = req.query?.order?.toString() || 'id'
+  const orderType: 'desc' | 'asc' = req.query?.desc ? 'desc' : 'asc'
+  const like: null | string = req.query?.like?.toString() || req.query?.search?.toString() || null
+  // const excluded: 'on' | 'only' | 'true' | null =
+  //   req.query?.excluded?.toString() as 'on' | 'only' | 'true' || null
+
+  const query = connection( 'users' )
+    .select( [ 'users.*', 'users_nd_info.*', 'users_meta_info.birthday', 'users_photos.photo' ] )
+    .join( 'users_nd_info', 'users_nd_info.user', 'users.id' )
+    .leftJoin( 'users_meta_info', 'users_meta_info.user', 'users.id' )
+    .leftJoin( 'users_photos', 'users_photos.user', 'users.id' )
+    .column( connection.raw( 'users_meta_info.facebook_uri AS facebook' ) )
+    .column( connection.raw( 'users_meta_info.twitter_uri AS twitter' ) )
+    .column( connection.raw( 'users_meta_info.instagram_uri AS instagram' ) )
+    .limit( limit )
+    .offset( page * limit )
+    .orderBy( order, orderType )
+
+  // if ( !excluded ) query.whereNull( 'deleted_at' )
+  
+  // if ( excluded === 'only' ) query.whereNotNull( 'deleted_at' )
+  
+  if ( like ) query
+    .where( 'users.name', 'like', `%${like}%` )
+    .orWhere( 'users_nd_info.document', 'like', `%${like}%` )
+    .orWhere( 'users_nd_info.code', 'like', `%${like}%` )
+    .orWhere( 'users.mail', 'like', `%${like}%` )
+
+  query.then( res.json.bind( res ) ).catch( next )
 } )
 
 export default users
