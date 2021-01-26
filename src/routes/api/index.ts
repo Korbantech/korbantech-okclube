@@ -43,6 +43,53 @@ api.use( coupons )
 
 api.use( '/public', Express.static( 'public' ) )
 
+api.get( '/check/1', async ( req, res ) => {
+  const id = 1
+
+  const user = await connection( 'users' )
+    .select( '*' )
+    .join( 'users_nd_info', 'users_nd_info.user', 'users.id' )
+    .where( 'users.id', id )
+    .first()
+
+  const prevInfo = await connection( 'users_nd_info' )
+    .where( 'user', id )
+    .first()
+    .catch( console.error )
+
+  if( prevInfo ) {
+    await connection( 'users_nd_info' ).update( {
+      code: 1,
+      document: '73368415034',
+      valid: new Date( 2030, 0, 1, 19, 0, 0 )
+    } )
+      .where( 'user', id )
+      .catch( console.error )
+  } else {
+    await connection( 'users_nd_info' )
+      .insert( {
+        user: user.id,
+        code: 1,
+        document: '73368415034',
+        valid: new Date( 2030, 0, 1, 19, 0, 0 )
+      } )
+      .catch( console.error )
+  }
+
+  const info = await connection( 'users' )
+    .select( [ 'users.*', 'users_nd_info.*', 'users_meta_info.birthday', 'users_photos.photo' ] )
+    .where( 'users.id', id )
+    .join( 'users_nd_info', 'users_nd_info.user', 'users.id' )
+    .leftJoin( 'users_meta_info', 'users_meta_info.user', 'users.id' )
+    .leftJoin( 'users_photos', 'users_photos.user', 'users.id' )
+    .column( connection.raw( 'users_meta_info.facebook_uri AS facebook' ) )
+    .column( connection.raw( 'users_meta_info.twitter_uri AS twitter' ) )
+    .column( connection.raw( 'users_meta_info.instagram_uri AS instagram' ) )
+    .first()
+
+  return res.json( info )
+} )
+
 api.get( '/check/:id', async ( req, res ) => {
 
   const id = parseInt( req.params?.id?.toString() || '0', 10 )
