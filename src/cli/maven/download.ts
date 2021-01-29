@@ -6,7 +6,7 @@ const download = new Command( 'download' )
 
 download.arguments( '<ed>' )
 
-download.option( '--cdn <url>', 'set cdn url', 'http://d38iurctu47dce.cloudfront.net/' )
+download.option( '--cdn <url>', 'set cdn url', process.env.DEFAULT_CDN_HOST )
 download.option( '-f, --force', 'force download', false )
 download.option( '-o, --output <url>', 'set output of pdf', path.resolve( 'public', 'magazines' ) )
 download.option( '-i, --image', 'get from image property in api', false )

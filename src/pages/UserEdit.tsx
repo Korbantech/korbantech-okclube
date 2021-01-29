@@ -92,13 +92,16 @@ const UserEdit = () => {
                       <h2 className="title" style={ { marginBottom: 0, marginRight: 10 } }>
                         Dados do usuário
                         <br />
-                        <small className="subtitle is-6">Ultima atualização em {new Date( user.updated_at ).toLocaleString()}</small>
+                        <small className="subtitle is-6">
+                          Ultima atualização em {new Date( user.updated_at ).toLocaleString()}
+                        </small>
                       </h2>
                       { loading && <Loading size={20}/> }
                     </div>
                     <div className="column is-5" />
                     <div className="column is-2">
-                      <button className="button" style={ { marginLeft: 'auto', display: 'flex' } } onClick={onUpdate} disabled={loading}>Atualizar</button>
+                      <button className="button" style={ { marginLeft: 'auto', display: 'flex' } }
+                        onClick={onUpdate} disabled={loading}>Atualizar</button>
                     </div>
                   </div>
                   <div className='columns'>

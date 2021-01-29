@@ -28,8 +28,14 @@ const downloadEdition = encapsulate( async ( ed: string, opts: any, close = fals
   const fullTempPath = path.join( tempDir, edition.ed )
   const name = `${ed}-${Date.now().toString( 36 )}.pdf`
   const outputFullpath = path.join( opts.output, name )
+
+  const editionInDb = await connection( 'newspaper_editions' ).where( 'ed_maven_number', ed ).first()
+
   if ( await exists( outputFullpath ) && !opts.force )
-    throw new Error( 'file exists' )
+    if ( editionInDb && new Date( editionInDb.update_at ) >= new Date( edition.dataUpdate ) ) void 0
+    else if ( !opts.jumpErrors )
+      return console.log( `jump ${ed} ( file exists ) and update time is grather than update time in maven` )
+    else throw new Error( 'file exists' )
 
   if ( await exists( fullTempPath ) )
     await rmdir( fullTempPath, { recursive: true } )
@@ -111,7 +117,7 @@ const downloadEdition = encapsulate( async ( ed: string, opts: any, close = fals
 
   const url = `${opts.cdn}${opts.cdn.endsWith( '/' ) ? '' : '/'}${name}`
 
-  const hasEditionInDb = !!await connection( 'newspaper_editions' ).where( 'ed_maven_number', ed ).first()
+  const hasEditionInDb = !!editionInDb
 
   const screeningDate = Times.Date.from( 'd/m/Y H:i:s', `${edition.data} 12:00:00` )
 
@@ -159,13 +165,15 @@ const downloadEdition = encapsulate( async ( ed: string, opts: any, close = fals
       return message.replace( RegExp( `{${key}}`, 'g' ), value )
     }, opts.notificationTitle )
 
-  if ( opts.notification )
+  if ( opts.notification ) {
     sendNotification( {
       filter: user => ids.includes( user.id ),
       notification: { title, message }
     } )
+    console.log( 'send notification to users' )
+  }
 
-  console.log( 'send' )
+  console.log( `done ${ed}` )
 
   if ( close ) {
     connection.destroy()
