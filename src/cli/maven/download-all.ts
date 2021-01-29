@@ -24,6 +24,7 @@ const encapsulate = <T extends ( ...args: any ) => Promise<any>>( callback: T ):
 downloadAll.action( encapsulate( async () => {
   const { data: editions } = await Maven.editions()
   const options = Object.assign( downloadAll.opts(), { jumpErrors: true } )
+
   await editions?.reduce( async ( promise, edition ) => {
     return promise.then( () => {
       console.log( `Download ${edition.ed}` )
