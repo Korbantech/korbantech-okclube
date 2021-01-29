@@ -6,7 +6,7 @@ import path from 'path'
 
 const downloadAll = new Command( 'download-all' )
 
-downloadAll.option( '--cdn <url>', 'set cdn url', 'http://d38iurctu47dce.cloudfront.net/' )
+downloadAll.option( '--cdn <url>', 'set cdn url', process.env.DEFAULT_CDN_HOST )
 downloadAll.option( '-f, --force', 'force download', false )
 downloadAll.option( '-o, --output <url>', 'set output of pdf', path.resolve( 'public', 'magazines' ) )
 downloadAll.option( '--notification', 'send notification to users', false )
@@ -23,10 +23,12 @@ const encapsulate = <T extends ( ...args: any ) => Promise<any>>( callback: T ):
 
 downloadAll.action( encapsulate( async () => {
   const { data: editions } = await Maven.editions()
-
+  const options = Object.assign( downloadAll.opts(), { jumpErrors: true } )
   await editions?.reduce( async ( promise, edition ) => {
-    console.log( `Download ${edition.ed}` )
-    return promise.then( () => downloadEdition( edition.ed, downloadAll.opts() ) )
+    return promise.then( () => {
+      console.log( `Download ${edition.ed}` )
+      return downloadEdition( edition.ed, options )
+    } )
   }, Promise.resolve() )
 
   connection.destroy()
