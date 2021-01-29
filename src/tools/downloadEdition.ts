@@ -33,8 +33,10 @@ const downloadEdition = encapsulate( async ( ed: string, opts: any, close = fals
   if ( !opts.cdn ) throw new Error( 'cdn is required option' )
   if ( !/^https?:\/\//.test( opts.cdn ) ) throw new Error( 'invalid cdn host format' )
   
-  if ( await exists( outputFullpath ) && !opts.force )
-    if ( !editionInDb || editionInDb && new Date( editionInDb.update_at ) >= new Date( edition.dataUpdate ) )
+  if ( await exists( outputFullpath ) )
+    if ( opts.force )
+      console.log( `force to replace edition ${ed}` )
+    else if ( !editionInDb || editionInDb && new Date( editionInDb.update_at ) >= new Date( edition.dataUpdate ) )
       console.log( `update ${ed}` )
     else if ( opts.jumpErrors )
       return console.log( `jump ${ed} ( file exists ) and update time is grather than update time in maven` )
