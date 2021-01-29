@@ -3,8 +3,8 @@ import { FaTicketAlt } from 'react-icons/fa'
 import { ImClipboard } from 'react-icons/im'
 
 import ConsolidatedResumCard from '@components/ConsolidateResumCard'
-import styled from 'styled-components'
 import { MONTHS } from '@constants/index'
+import styled from 'styled-components'
 
 const MonthlyResum = ( { answeredPolls, generatedCoupons }:Props ) => {
 

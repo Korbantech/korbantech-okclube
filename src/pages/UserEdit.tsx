@@ -3,6 +3,7 @@ import { useHistory, useParams } from 'react-router-dom'
 
 import api from '@app/api'
 import Input from '@components/Input'
+import Loading  from '@components/Loading'
 import useRequest from '@hooks/useRequest'
 import { Form } from '@unform/web'
 import { validate } from 'gerador-validador-cpf'
@@ -40,6 +41,7 @@ const UserEdit = () => {
   const params = useParams<any>()
   const [ manualEdit ] = useState( false )
   const [ document, setDocument ] = useState( '' )
+  const [ loading, setLoading ] = useState( false )
 
   useEffect( () => {
     if ( user ) setDocument( user.document )
@@ -50,10 +52,21 @@ const UserEdit = () => {
   }, [ user ] )
 
   useEffect( () => {
+    setLoading( true )
     api.get( `/users/${params.user}` )
       .then( response => setUser( response.data ) )
       .catch( console.error )
+      .finally( setLoading.bind( null, false ) )
   }, [ params.user ] )
+
+  const onUpdate = useCallback( () => {
+    if ( !user ) return void 0
+    setLoading( true )
+    api.get( `/check/${user.id}` )
+      .then( response => setUser( response.data ) )
+      .catch( console.error )
+      .finally( setLoading.bind( null, false ) )
+  }, [ user ] )
 
   useEffect( () => {
     if ( !categoriesRequest.init ) categoriesRequest.send()
@@ -74,7 +87,20 @@ const UserEdit = () => {
             <>
               <section className="section" style={ { padding: 0 } }>
                 <div className="container">
-                  <h2 className="title">Dados de usuário</h2>
+                  <div className="columns">
+                    <div className="column is-5 is-flex is-flex-direction-row is-align-items-center">
+                      <h2 className="title" style={ { marginBottom: 0, marginRight: 10 } }>
+                        Dados do usuário
+                        <br />
+                        <small className="subtitle is-6">Ultima atualização em {new Date( user.updated_at ).toLocaleString()}</small>
+                      </h2>
+                      { loading && <Loading size={20}/> }
+                    </div>
+                    <div className="column is-5" />
+                    <div className="column is-2">
+                      <button className="button" style={ { marginLeft: 'auto', display: 'flex' } } onClick={onUpdate} disabled={loading}>Atualizar</button>
+                    </div>
+                  </div>
                   <div className='columns'>
                     <div className='column is-6'>
                       <div className="field">

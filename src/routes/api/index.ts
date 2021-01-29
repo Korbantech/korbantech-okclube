@@ -127,12 +127,12 @@ api.get( '/check/:id', async ( req, res ) => {
 
   if ( data.codigoDaPessoaAssinante === 0 ) {
     await connection( 'users_nd_info' )
-      .update( {
-        code: null,
-        valid: null
-      } )
+      .update( { code: null, valid: null } )
       .where( 'user', id )
       .catch( console.error )
+    await connection( 'users' )
+      .update( { updated_at: new Date() } )
+      .where( 'id', user.id )
     return res.status( 404 ).json()
   }
 
@@ -162,6 +162,10 @@ api.get( '/check/:id', async ( req, res ) => {
       .then()
       .catch( console.error )
   }
+
+  await connection( 'users' )
+    .update( { updated_at: new Date() } )
+    .where( 'id', user.id )
 
   const info = await connection( 'users' )
     .select( [ 'users.*', 'users_nd_info.*', 'users_meta_info.birthday', 'users_photos.photo' ] )

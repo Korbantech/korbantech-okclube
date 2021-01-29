@@ -2,8 +2,8 @@ import React, { useEffect, useRef } from 'react'
 
 import { useField } from '@unform/core'
 
-const Input = ( { name, ...rest }: Input.Props ) => {
-  const inputRef = useRef( null )
+const Input = ( { name, defaultValue: defaultValueProp, ...rest }: Input.Props ) => {
+  const inputRef = useRef<HTMLInputElement>( null )
   const { fieldName, defaultValue, registerField } = useField( name )
 
   useEffect( () => {
@@ -13,6 +13,10 @@ const Input = ( { name, ...rest }: Input.Props ) => {
       path: 'value',
     } )
   }, [ fieldName, registerField ] )
+
+  useEffect( () => {
+    if ( inputRef.current && defaultValueProp ) inputRef.current.value = defaultValueProp.toString()
+  }, [ defaultValueProp ] )
 
   return <input ref={inputRef} defaultValue={defaultValue} {...rest} />
 }
