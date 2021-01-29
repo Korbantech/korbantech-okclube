@@ -34,7 +34,8 @@ const downloadEdition = encapsulate( async ( ed: string, opts: any, close = fals
   if ( !/^https?:\/\//.test( opts.cdn ) ) throw new Error( 'invalid cdn host format' )
   
   if ( await exists( outputFullpath ) && !opts.force )
-    if ( !editionInDb || editionInDb && new Date( editionInDb.update_at ) >= new Date( edition.dataUpdate ) ) void 0
+    if ( !editionInDb || editionInDb && new Date( editionInDb.update_at ) >= new Date( edition.dataUpdate ) )
+      console.log( `update ${ed}` )
     else if ( opts.jumpErrors )
       return console.log( `jump ${ed} ( file exists ) and update time is grather than update time in maven` )
     else throw new Error( 'file exists' )
