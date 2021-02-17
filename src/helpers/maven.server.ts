@@ -103,7 +103,6 @@ namespace Maven {
         const pdf = await PDF.merge( ...pdfs )
 
         await Dir.remove( tmp, { recursive: true } )
-
         emitter.emit( 'done', pdf )
 
       } catch ( e ) { emitter.emit( 'error', e ) }
@@ -231,17 +230,26 @@ namespace Maven {
   }
 }
 
-Maven.api.defaults.baseURL = 'http://v4.maven.com.br/app/v3.jsp'
 Maven.api.interceptors.request.use( request => {
-  const params = Object.assign( { cd: '5aab3238922bcc25a6f606eb525ffdc56' }, request.params )
-  return { ...request, params }
+  request.params = request.params || {}
+  request.params.cd = '5aab3238922bcc25a6f606eb525ffdc56'
+  /*
+  request.params = Object.keys( request.params ).sort().reduce(
+    (obj, key) => {
+      obj[key] = request.params[key];
+      return obj;
+    }, 
+    {} as any
+  )
+  */
+  return request
 } )
+
 Maven.api.interceptors.response.use( async response => {
   try {
     const data = await xml.parseStringPromise( response.data )
     return Promise.resolve( { ...response, data } )
   } catch ( e ) {
-    console.error( e )
     return Promise.resolve( response )
   }
 } )
