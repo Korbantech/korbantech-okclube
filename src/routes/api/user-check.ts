@@ -159,4 +159,46 @@ usercheck.get( '/check/:id', async ( req, res ) => {
 
 } )
 
+usercheck.get( '/register/:cpf', async ( req, res ) => {
+  const document = req.params?.cpf?.toString().replace( /\D/gi, '' ) || ''
+  
+  const user = await connection( 'users' )
+    .select( '*' )
+    .join( 'users_nd_info', 'users_nd_info.user', 'users.id' )
+    .where( 'users_nd_info.document', document )
+    .first()
+  
+  if ( !user ) {
+    const url = 'https://sac.ndonline.com.br/clubedoassinante/rest/clube/dados/identmf/' + document
+    const start = Date.now()
+    let data
+    try { data = ( await axios.get( url ) ).data }
+    catch ( e ) { data = e.response?.data }
+    finally {
+      ndErrorStream.write(
+        `[${new Date().toISOString()}]time sac[${ Date.now() - start }ms][check register][${document}][${url}]\n`
+      )
+    }
+  
+    if ( !Array.isArray( data ) ) return res.status( 500 ).json()
+  
+    data = data.shift()
+  
+    if ( data.codigoDaPessoaAssinante === 0 )
+      return res.json( { document } )
+  
+    const dataUser = {
+      name: data.nomeDoBeneficario || data.nomeDoAssinante,
+      mail: data.email,
+      code: data.codigoDaPessoaAssinante,
+      document: data.identMF,
+      valid: data.dataDeValidade,
+    }
+  
+    return res.json( dataUser )
+  }
+  
+  res.status( 200 ).json( { ...user, alreadyExists: true } )
+} )
+
 export default usercheck
