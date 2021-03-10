@@ -1,5 +1,5 @@
 {
-  "extends": "@cookiex-react",
+  "extends": "@cookiex",
   "rules": {
     "consistent-return": "off",
     "no-await-in-loop": "off",

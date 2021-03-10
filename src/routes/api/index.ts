@@ -45,7 +45,7 @@ api.get( '/login', async ( req, res ) => {
   const mail = req.query?.mail?.toString() || ''
   const pass = req.query?.pass?.toString() || ''
 
-  let user = await connection( 'users' )
+  const user = await connection( 'users' )
     .select( [ 'users.*', 'users_nd_info.*', 'users_meta_info.birthday', 'users_photos.photo' ] )
     .where( 'users.mail', mail )
     .where( 'users.pass', pass )
